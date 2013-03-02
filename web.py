@@ -3,12 +3,16 @@
 # Author: Hua Liang[Stupid ET] <et@everet.org>
 #
 
-import cgi
-import os
-import urlparse
-import httplib
 import Cookie
+import cgi
+import httplib
+import os
+import re
 import sys
+import urlparse
+import traceback
+
+from util import import_object
 
 
 class StdStream(object):
@@ -35,6 +39,7 @@ class HTTPRequest(object):
                  ):
         self.method = method
         self.uri = uri
+        self.path = uri.split("?", 1)[0]
         self.headers = headers
         self.host = host or self.headers.get("Host")
         self.remote_ip = remote_ip
@@ -78,6 +83,14 @@ class RequestHandler(object):
         self.request = request
 
         self.clear()
+
+        self.initialize(**kwargs)
+
+    def initialize(self):
+        pass
+
+    def prepare(self):
+        pass
 
     def get(self, *args, **kwargs):
         raise HTTPError(405)
@@ -147,25 +160,83 @@ class RequestHandler(object):
     def write(self, chunk):
         self._write_buffer.append(chunk)
 
-    def flush(self):
-        self.request.write("Status: %d %s\r\n" % (self._status_code,
-                                                  httplib.responses[self._status_code]))
+    def _generate_headers(self):
+        header = "Status: %d %s\r\n" % (self._status_code,
+                                        httplib.responses[self._status_code])
 
         for k, v in self._headers.iteritems():
-            self.request.write("%s: %s\r\n" % (k, v))
-        self.request.write("\r\n")
+            header += "%s: %s\r\n" % (k, v)
+        header += "\r\n"
+        return header
+
+    def flush(self):
+        header = self._generate_headers()
+        self.request.write(header)
 
         self.request.write("".join(self._write_buffer))
 
     def _execute(self):
-        self.write("Hello, ET")
+        try:
+            self.prepare()
 
-        self.flush()
+            getattr(self, self.request.method.lower())()
+        except Exception, e:
+            self._handle_request_exception(e)
+        finally:
+            self.flush()
+
+    def _handle_request_exception(self, e):
+        if isinstance(e, HTTPError):
+            self.send_error(e.status_code, exc_info=traceback.format_exc())
+        else:
+            self.send_error(500, exc_info=sys.exc_info())
+
+    def send_error(self, status_code=500, **kwargs):
+        self.clear()
+        self.set_status(status_code)
+        self.set_header("Content-Type", "text/plain")
+
+        self.write(kwargs.get("exc_info", ""))
+
+
+class ErrorHandler(RequestHandler):
+    def initialize(self, status_code):
+        self.set_status(status_code)
+
+    def prepare(self):
+        raise HTTPError(self._status_code)
+
+
+class URLSpec(object):
+    def __init__(self, pattern, handler_class):
+        if not pattern.endswith("$"):
+            pattern += "$"
+        self.regex = re.compile(pattern)
+        self.handler_class = handler_class
 
 
 class Application(object):
-    def __init__(self):
-        pass
+    """Application is the abstract of the program"""
+    def __init__(self, handlers):
+        self.handlers = []
+
+        if handlers:
+            self.add_handlers(handlers)
+
+    def add_handlers(self, handlers):
+        for spec in handlers:
+            if isinstance(spec, type(())):
+                assert len(spec) == 2
+                host_pattern = spec[0]
+                handler = spec[1]
+
+                if isinstance(handler, str):
+                    handler = import_object(handler)
+
+                if not host_pattern.endswith("$"):
+                    host_pattern += "$"
+
+                self.handlers.append(URLSpec(host_pattern, handler))
 
     def prepare(self):
         connection = HTTPConnection(StdStream())
@@ -180,10 +251,22 @@ class Application(object):
                               connection)
         self._request = request
 
-        self.handler = RequestHandler(self, self._request)
-
     def handle(self):
-        self.handler._execute()
+        request = self._request
+        path = request.path
+
+        handler = None
+
+        for spec in self.handlers:
+            match = spec.regex.match(path)
+            if match:
+                handler = spec.handler_class(self, request)
+
+        if not handler:
+            handler = ErrorHandler(self, request, status_code=404)
+
+        handler._execute()
+        return handler
 
     def run(self):
         self.prepare()
