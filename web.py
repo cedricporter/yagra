@@ -47,11 +47,16 @@ class HTTPRequest(object):
         self.arguments = {}
         self.connection = connection
 
-        arguments = urlparse.parse_qs(self.query)
-        for name, values in arguments.iteritems():
-            values = [v for v in values if v]
-            if values:
-                self.arguments[name] = values
+        # arguments = urlparse.parse_qs(self.query)
+        # for name, values in arguments.iteritems():
+        #     values = [v for v in values if v]
+        #     if values:
+        #         self.arguments[name] = values
+
+        # TODO: 这里需要将cgi底层操作独立抽象出来
+        form = cgi.FieldStorage()
+        for key in form.keys():
+            self.arguments[key] = form.getlist(key)
 
     def write(self, chunk):
         self.connection.write(chunk)

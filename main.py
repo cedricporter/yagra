@@ -11,16 +11,41 @@ import web
 
 class MainHandler(web.RequestHandler):
     def get(self):
-        a = int(self.get_argument("a"))
-        b = int(self.get_argument("b"))
+        html = """
+<html>
+  <head>
+    <title>
+      Yagra
+    </title>
+  </head>
+  <body>
+    <form action="/user" method="post">
+      <input type="text" name="username"/>
+      <input type="file" name="user_head"/>
+      <input type="submit"/>
+    </form>
+  </body>
+</html>
+        """
+        self.write(html)
 
-        self.write("%d + %d = %d" % (a, b, a + b))
+
+class UserHandler(web.RequestHandler):
+    def post(self):
+        self.write(self.get_argument("username"))
+
+        user_head = self.get_argument("user_head")
+
+        with open("uploads/user_head.jpg", "wb") as out:
+            out.write(user_head)
+
+
 
 
 class EchoHandler(web.RequestHandler):
     def get(self):
-        info = self.get_argument("info")
-        self.write(info)
+        import cgi
+        self.write(str(cgi.FieldStorage()))
 
 
 def test():
@@ -60,5 +85,6 @@ if __name__ == '__main__':
     app = web.Application([
         (r"/", MainHandler),
         (r"/echo", EchoHandler),
+        (r"/user", UserHandler),
     ])
     app.cgi_run()
