@@ -189,7 +189,7 @@ class RequestHandler(object):
         if isinstance(e, HTTPError):
             self.send_error(e.status_code, exc_info=traceback.format_exc())
         else:
-            self.send_error(500, exc_info=sys.exc_info())
+            self.send_error(500, exc_info=traceback.format_exc())
 
     def send_error(self, status_code=500, **kwargs):
         self.clear()
@@ -238,8 +238,8 @@ class Application(object):
 
                 self.handlers.append(URLSpec(host_pattern, handler))
 
-    def prepare(self):
-        connection = HTTPConnection(StdStream())
+    def prepare(self, stream):
+        connection = HTTPConnection(stream)
 
         env = os.environ
         request = HTTPRequest(env["REQUEST_METHOD"],
@@ -268,7 +268,7 @@ class Application(object):
         handler._execute()
         return handler
 
-    def run(self):
-        self.prepare()
+    def cgi_run(self):
+        self.prepare(StdStream())
 
         self.handle()
