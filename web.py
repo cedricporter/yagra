@@ -11,6 +11,9 @@ import re
 import sys
 import urlparse
 import traceback
+import datetime
+import calendar
+import email
 
 from util import import_object
 
@@ -157,22 +160,53 @@ class RequestHandler(object):
     def cookies(self):
         return self.request.cookies
 
-    def set_cookie(self, name, value):
+    def set_cookie(self, name, value, domain=None, expires=None, path="/",
+                   expires_days=None, max_age=None):
+
         if not hasattr(self, "_new_cookie"):
             self._new_cookie = Cookie.SimpleCookie()
         self._new_cookie[name] = value
+        morsel = self._new_cookie[name]
+        if domain:
+            morsel["domain"] = domain
+        if expires_days is not None and not expires:
+            expires = datetime.datetime.utcnow() + datetime.timedelta(
+                days=expires_days)
+        if expires:
+            timestamp = calendar.timegm(expires.utctimetuple())
+            morsel["expires"] = email.utils.formatdate(
+                timestamp, localtime=False, usegmt=True)
+        if path:
+            morsel["path"] = path
+        if max_age:
+            morsel["max_age"] = max_age
+
+    def clear_cookie(self, name, path="/", domain=None):
+        expires = datetime.datetime.utcnow() - datetime.timedelta(days=365)
+        self.set_cookie(name, value="", path=path,
+                        expires=expires, domain=domain)
+
+    def redirect(self, url, permanent=False, status=None):
+        if status is None:
+            status = 301 if permanent else 302
+        self.set_status(status)
+        self.set_header("Location", urlparse.urljoin(self.request.uri,
+                                                     url))
 
     def write(self, chunk):
         self._write_buffer.append(chunk)
 
     def _generate_headers(self):
-        header = "Status: %d %s\r\n" % (self._status_code,
-                                        httplib.responses[self._status_code])
+        lines = ["Status: %d %s" % (self._status_code,
+                                        httplib.responses[self._status_code])]
 
         for k, v in self._headers.iteritems():
-            header += "%s: %s\r\n" % (k, v)
-        header += "\r\n"
-        return header
+            lines.append("%s: %s" % (k, v))
+        if hasattr(self, "_new_cookie"):
+            for cookie in self._new_cookie.values():
+                lines.append("Set-Cookie: " + cookie.OutputString(None))
+
+        return "\r\n".join(lines) + "\r\n\r\n"
 
     def flush(self):
         header = self._generate_headers()

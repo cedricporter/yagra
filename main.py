@@ -44,6 +44,14 @@ class EchoHandler(web.RequestHandler):
     def get(self):
         import cgi
         self.write(str(cgi.FieldStorage()))
+        self.set_cookie("Name", "Stupid ET")
+
+
+class EnvironHandler(web.RequestHandler):
+    def get(self):
+        import os
+        self.set_header("Content-Type", "text/plain")
+        self.write(str(os.environ))
 
 
 def main():
@@ -51,6 +59,7 @@ def main():
         (r"/", MainHandler),
         (r"/echo", EchoHandler),
         (r"/user", UserHandler),
+        (r"/env", EnvironHandler),
     ])
     app.cgi_run()
 
