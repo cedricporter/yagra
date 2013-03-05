@@ -17,7 +17,7 @@ def random_string(length=10):
     return "".join(random.choice(string.letters) for i in xrange(length))
 
 
-def main():
+def test_insert():
     import pprint
     import time
 
@@ -43,6 +43,9 @@ def main():
     c.close()
     db.close()
 
+
+def main():
+    test_insert()
 
 if __name__ == '__main__':
     main()

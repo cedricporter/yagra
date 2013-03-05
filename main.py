@@ -7,6 +7,7 @@ import cgitb
 cgitb.enable()
 
 import web
+import db
 
 
 class MainHandler(web.RequestHandler):
@@ -40,10 +41,20 @@ class UserHandler(web.RequestHandler):
 
         upload_filename = self.request.files["user_head"].filename
 
-        filename = "uploads/" + time.strftime("%Y_%m_%d_%H_%M_%S_") + "".join(random.choice(string.letters) for i in xrange(10)) + upload_filename
+        filename = time.strftime("%Y_%m_%d_%H_%M_%S_") + "".join(random.choice(string.letters) for i in xrange(10)) + upload_filename
 
-        with open(filename, "wb") as out:
+        full_filename = "uploads/" + filename
+
+        with open(full_filename, "wb") as out:
             out.write(user_head)
+
+        cursor = db.db.cursor()
+        if cursor.execute("SELECT ID FROM yagra_user WHERE user_email = %s", ("uoehBkgTXE@gmail.com", )):
+            row = cursor.fetchone()
+            if row:
+                user_id = row[0]
+                cursor.execute("INSERT INTO yagra_image (user_id, filename, upload_date) VALUES (%s, %s, %s)", (str(user_id), filename, time.strftime('%Y-%m-%d %H:%M:%S')))
+                db.db.commit()
 
         self.set_header("Content-Type", "text/plain")
         self.write(str(self.request.files["user_head"].type))
