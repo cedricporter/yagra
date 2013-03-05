@@ -4,16 +4,16 @@
 #
 
 import Cookie
+import calendar
 import cgi
+import datetime
+import email
 import httplib
 import os
 import re
 import sys
-import urlparse
 import traceback
-import datetime
-import calendar
-import email
+import urlparse
 
 from util import import_object
 
@@ -49,16 +49,15 @@ class HTTPRequest(object):
         self.query = query
         self.arguments = {}
         self.connection = connection
-
-        # arguments = urlparse.parse_qs(self.query)
-        # for name, values in arguments.iteritems():
-        #     values = [v for v in values if v]
-        #     if values:
-        #         self.arguments[name] = values
+        self.files = {}
 
         # TODO: 这里需要将cgi底层操作独立抽象出来
         form = cgi.FieldStorage()
         for key in form.keys():
+            item = form[key]
+            if item.file:
+                self.files[key] = item
+
             self.arguments[key] = form.getlist(key)
 
     def write(self, chunk):

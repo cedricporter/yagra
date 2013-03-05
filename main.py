@@ -19,7 +19,7 @@ class MainHandler(web.RequestHandler):
     </title>
   </head>
   <body>
-    <form action="/user" method="post">
+    <form action="/user" method="post" enctype="multipart/form-data">
       <input type="text" name="username"/>
       <input type="file" name="user_head"/>
       <input type="submit"/>
@@ -32,12 +32,23 @@ class MainHandler(web.RequestHandler):
 
 class UserHandler(web.RequestHandler):
     def post(self):
-        self.write(self.get_argument("username"))
-
         user_head = self.get_argument("user_head")
 
-        with open("uploads/user_head.jpg", "wb") as out:
+        import random
+        import string
+        import time
+
+        upload_filename = self.request.files["user_head"].filename
+
+        filename = "uploads/" + time.strftime("%Y_%m_%d_%H_%M_%S_") + "".join(random.choice(string.letters) for i in xrange(10)) + upload_filename
+
+        with open(filename, "wb") as out:
             out.write(user_head)
+
+        self.set_header("Content-Type", "text/plain")
+        self.write(str(self.request.files["user_head"].type))
+
+        self.redirect("/")
 
 
 class EchoHandler(web.RequestHandler):
