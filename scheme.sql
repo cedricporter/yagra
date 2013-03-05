@@ -5,11 +5,11 @@ DROP TABLE IF EXISTS `yagra_user`;
 CREATE TABLE `yagra_user` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_login` varchar(60) NOT NULL DEFAULT '',
-  `user_pass` varchar(64) NOT NULL DEFAULT '',
-  `user_nicename` varchar(50) NOT NULL DEFAULT '',
+  `user_passwd` varchar(64) NOT NULL DEFAULT '',
   `user_email` varchar(100) NOT NULL DEFAULT '',
   `user_register` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `user_status` int(11) NOT NULL DEFAULT '0',
+  `display_name` varchar(256) NOT NULL DEFAULT '',
   PRIMARY KEY (`ID`),
   KEY `user_login_key` (`user_login`),
   KEY `user_email_key` (`user_email`)

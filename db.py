@@ -26,8 +26,8 @@ def test_insert():
     INSERT INTO `yagra`.`yagra_user`
     (
     `user_login`,
-    `user_pass`,
-    `user_nicename`,
+    `user_passwd`,
+    `display_name`,
     `user_email`,
     `user_register`,
     `user_status`)

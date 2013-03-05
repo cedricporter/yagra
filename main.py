@@ -7,7 +7,7 @@ import cgitb
 cgitb.enable()
 
 import web
-import db
+from db import db
 
 
 class MainHandler(web.RequestHandler):
@@ -48,13 +48,13 @@ class UserHandler(web.RequestHandler):
         with open(full_filename, "wb") as out:
             out.write(user_head)
 
-        cursor = db.db.cursor()
+        cursor = db.cursor()
         if cursor.execute("SELECT ID FROM yagra_user WHERE user_email = %s", ("uoehBkgTXE@gmail.com", )):
             row = cursor.fetchone()
             if row:
                 user_id = row[0]
                 cursor.execute("INSERT INTO yagra_image (user_id, filename, upload_date) VALUES (%s, %s, %s)", (str(user_id), filename, time.strftime('%Y-%m-%d %H:%M:%S')))
-                db.db.commit()
+                db.commit()
 
         self.set_header("Content-Type", "text/plain")
         self.write(str(self.request.files["user_head"].type))
@@ -82,6 +82,9 @@ def main():
         (r"/echo", EchoHandler),
         (r"/user", UserHandler),
         (r"/env", EnvironHandler),
+        (r"/accounts/?", "accounts.AccountHandler"),
+        (r"/accounts/signup/?", "accounts.RegisterHandler"),
+        (r"/accounts/new", "accounts.NewAccountHandler"),
     ])
     app.cgi_run()
 
