@@ -74,11 +74,6 @@ class HTTPRequest(object):
                 self._cookies.load(self.cookie_string)
         return self._cookies
 
-    @property
-    def session(self):
-        if not hasattr(self, "_session"):
-            session_id = self.cookies.get("session_id")
-
 
 class HTTPError(Exception):
     """An exception that will turn into an HTTP error response."""
@@ -113,6 +108,9 @@ class RequestHandler(object):
         pass
 
     def prepare(self):
+        pass
+
+    def finalize(self):
         pass
 
     def get(self, *args, **kwargs):
@@ -175,11 +173,6 @@ class RequestHandler(object):
     def cookies(self):
         return self.request.cookies
 
-    @property
-    def session(self):
-        if not hasattr(self, "_session"):
-            self._session = self.request.session
-
     def set_cookie(self, name, value, domain=None, expires=None, path="/",
                    expires_days=None, max_age=None):
 
@@ -239,6 +232,8 @@ class RequestHandler(object):
             self.prepare()
 
             getattr(self, self.request.method.lower())()
+
+            self.finalize()
         except Exception, e:
             self._handle_request_exception(e)
         finally:

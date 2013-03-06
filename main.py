@@ -7,11 +7,40 @@ import cgitb
 cgitb.enable()
 
 import web
+import logging
 from db import db
+from session import Session, MySQLStore
 
 
-class MainHandler(web.RequestHandler):
+logging.getLogger().setLevel(logging.INFO)
+
+
+class RequestHandlerWithSession(web.RequestHandler):
+    @property
+    def session(self):
+        if not hasattr(self, "_session"):
+            self._session = Session(MySQLStore(db, "yagra_session"))
+            session_id = self.cookies.get("session_id")
+            if session_id:
+                session_id = session_id.value
+                self._session._load(session_id)
+            else:
+                self._session._load()
+                session_id = self._session.session_id
+                self.set_cookie("session_id", session_id)
+        return self._session
+
+    def finalize(self):
+        if hasattr(self, "_session"):
+            self._session._save()
+
+
+class MainHandler(RequestHandlerWithSession):
     def get(self):
+        if self.session.get("login"):
+            info = "username: " + self.session["username"]
+        else:
+            info = ""
         html = """
 <html>
   <head>
@@ -20,6 +49,7 @@ class MainHandler(web.RequestHandler):
     </title>
   </head>
   <body>
+    %s
     <form action="/user" method="post" enctype="multipart/form-data">
       <input type="text" name="username"/>
       <input type="file" name="user_head"/>
@@ -27,7 +57,7 @@ class MainHandler(web.RequestHandler):
     </form>
   </body>
 </html>
-        """
+        """ % info
         self.write(html)
 
 
@@ -53,7 +83,8 @@ class UserHandler(web.RequestHandler):
             row = cursor.fetchone()
             if row:
                 user_id = row[0]
-                cursor.execute("INSERT INTO yagra_image (user_id, filename, upload_date) VALUES (%s, %s, %s)", (str(user_id), filename, time.strftime('%Y-%m-%d %H:%M:%S')))
+                cursor.execute("INSERT INTO yagra_image (user_id, filename, upload_date) VALUES (%s, %s, %s)",
+                               (str(user_id), filename, time.strftime('%Y-%m-%d %H:%M:%S')))
                 db.commit()
 
         self.set_header("Content-Type", "text/plain")
@@ -78,6 +109,40 @@ class EnvironHandler(web.RequestHandler):
         self.write(str(self.cookies))
 
 
+class LoginHandler(RequestHandlerWithSession):
+    def get(self):
+        html = """
+<html>
+  <body>
+    <form action="/accounts/login" method="post">
+      <input type="text" name="username">
+      <input type="password" name="password">
+      <input type="submit">
+    </form>
+  </body>
+</html>
+        """
+        if self.session.get("login"):
+            self.redirect("/")
+        else:
+            self.write(html)
+
+    def post(self):
+        username = self.get_argument("username")
+        password = self.get_argument("password")
+
+        cursor = db.cursor()
+        cursor.execute("SELECT ID FROM yagra_user WHERE user_login = %s AND user_passwd = %s", (username, password))
+        row = cursor.fetchone()
+        if row:
+            logging.info(row)
+            self.session["login"] = True
+            self.session["username"] = username
+            self.set_cookie("session_id", self.session.session_id)
+            return self.redirect("/")
+        self.write("Error")
+
+
 def main():
     app = web.Application([
         (r"/", MainHandler),
@@ -87,7 +152,7 @@ def main():
         (r"/accounts/?", "accounts.AccountHandler"),
         (r"/accounts/signup/?", "accounts.RegisterHandler"),
         (r"/accounts/new", "accounts.NewAccountHandler"),
-        (r"/accounts/login", "accounts.LoginHandler"),
+        (r"/accounts/login", LoginHandler),
     ])
     app.cgi_run()
 

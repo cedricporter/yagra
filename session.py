@@ -27,6 +27,9 @@ class Session(object):
     def __delitem__(self, name):
         del self._data[name]
 
+    def get(self, name, default=None):
+        return self._data.get(name, default)
+
     def _load(self, session_id=None):
         self.session_id = session_id
         if not self.session_id:
@@ -72,7 +75,8 @@ class MySQLStore(Store):
     def __contains__(self, key):
         c = self.db.cursor()
         sql = "SELECT * FROM " + self.table + " WHERE session_id = %s"
-        row = c.execute(sql, (key, ))
+        c.execute(sql, (key, ))
+        row = c.fetchone()
         c.close()
         return bool(row)
 
@@ -80,9 +84,10 @@ class MySQLStore(Store):
         now = time.strftime("%Y-%m-%d %H:%M:%S")
         c = self.db.cursor()
         sql = "SELECT data FROM " + self.table + " WHERE session_id = %s"
-        row = c.execute(sql, (key, ))
+        c.execute(sql, (key, ))
+        row = c.fetchone()
         if row:
-            data = c.fetchone()[0]
+            data = row[0]
             sql = "UPDATE " + self.table + " SET atime = %s WHERE session_id = %s"
             c.execute(sql, (now, key))
             self.db.commit()
@@ -125,8 +130,8 @@ class MySQLStore(Store):
 if __name__ == '__main__':
     from db import db
     session = Session(MySQLStore(db, "yagra_session"))
-    session._load("4310fee7dcf344e894d52f57537b9f5ccc6be19e755f48b6b5c668399c29b3e80fa7bd8942b94bc4870a629ac374341bc7cebcd3868e4f999722a4bb71df603f")
-    print session["name"], session["age"]
+    session._load("Set-Cookie: session_id=6875ff912235428cb87b04294934e36f50270df9890e4ad9bbfbd471e8e9c7acfd6ceac989a24d55809f3ea19b0a9bf2a19f5adec")
+    # print session["name"], session["age"]
     session["name"] = "Cedric Porter"
     session["age"] = 22
     session._save()
