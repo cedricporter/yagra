@@ -14,6 +14,7 @@ import re
 import sys
 import traceback
 import urlparse
+import session
 
 from util import import_object
 
@@ -72,6 +73,11 @@ class HTTPRequest(object):
             if self.cookie_string:
                 self._cookies.load(self.cookie_string)
         return self._cookies
+
+    @property
+    def session(self):
+        if not hasattr(self, "_session"):
+            session_id = self.cookies.get("session_id")
 
 
 class HTTPError(Exception):
@@ -172,7 +178,7 @@ class RequestHandler(object):
     @property
     def session(self):
         if not hasattr(self, "_session"):
-            self._session =
+            self._session = self.request.session
 
     def set_cookie(self, name, value, domain=None, expires=None, path="/",
                    expires_days=None, max_age=None):
