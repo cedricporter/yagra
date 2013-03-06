@@ -9,30 +9,10 @@ cgitb.enable()
 import web
 import logging
 from db import db
-from session import Session, MySQLStore
+from base import MyBaseRequestHandler, RequestHandlerWithSession, authenticated
 
 
 logging.getLogger().setLevel(logging.INFO)
-
-
-class RequestHandlerWithSession(web.RequestHandler):
-    @property
-    def session(self):
-        if not hasattr(self, "_session"):
-            self._session = Session(MySQLStore(db, "yagra_session"))
-            session_id = self.cookies.get("session_id")
-            if session_id:
-                session_id = session_id.value
-                self._session._load(session_id)
-            else:
-                self._session._load()
-                session_id = self._session.session_id
-                self.set_cookie("session_id", session_id)
-        return self._session
-
-    def finalize(self):
-        if hasattr(self, "_session"):
-            self._session._save()
 
 
 class MainHandler(RequestHandlerWithSession):
@@ -55,14 +35,18 @@ class MainHandler(RequestHandlerWithSession):
       <input type="file" name="user_head"/>
       <input type="submit"/>
     </form>
+    <a href="/accounts/login">login</a>
+    <a href="/accounts/logout">logout</a>
   </body>
 </html>
         """ % info
         self.write(html)
 
 
-class UserHandler(web.RequestHandler):
+class UserHandler(RequestHandlerWithSession):
+    @authenticated
     def post(self):
+        username = self.session["username"]
         user_head = self.get_argument("user_head")
 
         import random
@@ -75,17 +59,19 @@ class UserHandler(web.RequestHandler):
 
         full_filename = "uploads/" + filename
 
+        logging.info("Writing file to %s" % (filename, ))
         with open(full_filename, "wb") as out:
             out.write(user_head)
 
         cursor = db.cursor()
-        if cursor.execute("SELECT ID FROM yagra_user WHERE user_email = %s", ("uoehBkgTXE@gmail.com", )):
-            row = cursor.fetchone()
-            if row:
-                user_id = row[0]
-                cursor.execute("INSERT INTO yagra_image (user_id, filename, upload_date) VALUES (%s, %s, %s)",
-                               (str(user_id), filename, time.strftime('%Y-%m-%d %H:%M:%S')))
-                db.commit()
+        cursor.execute("SELECT ID FROM yagra_user WHERE user_login = %s", (username, ))
+        row = cursor.fetchone()
+        if row:
+            user_id = row[0]
+            logging.info("Insert into db %s" % (filename, ))
+            cursor.execute("INSERT INTO yagra_image (user_id, filename, upload_date) VALUES (%s, %s, %s)",
+                           (str(user_id), filename, time.strftime('%Y-%m-%d %H:%M:%S')))
+            db.commit()
 
         self.set_header("Content-Type", "text/plain")
         self.write(str(self.request.files["user_head"].type))
@@ -93,14 +79,32 @@ class UserHandler(web.RequestHandler):
         self.redirect("/")
 
 
-class EchoHandler(web.RequestHandler):
+class ImageWallHandler(MyBaseRequestHandler):
+    "Show all head image"
     def get(self):
-        import cgi
-        self.write(str(cgi.FieldStorage()))
-        self.set_cookie("Name", "Stupid ET")
+        imgs = ""
+        c = db.cursor()
+        c.execute("SELECT filename, upload_date FROM yagra_image")
+        for filename, upload_date in c.fetchall():
+            imgs += '<div><p>' + upload_date.ctime() + '</p>'
+            imgs += '<img src="/uploads/' + filename + '"/>'
+            imgs += '</div>'
+
+        html = """
+        <body>
+          %s
+        </body>
+        """ % imgs
+
+        self.write(html)
 
 
-class EnvironHandler(web.RequestHandler):
+class EchoHandler(RequestHandlerWithSession):
+    def get(self):
+        self.write(str(self.session.get("username")))
+
+
+class EnvironHandler(MyBaseRequestHandler):
     def get(self):
         import os
         self.set_header("Content-Type", "text/plain")
@@ -143,6 +147,12 @@ class LoginHandler(RequestHandlerWithSession):
         self.write("Error")
 
 
+class LogoutHandler(RequestHandlerWithSession):
+    def get(self):
+        self.clear_cookie("session_id")
+        self.redirect(self.get_login_url())
+
+
 def main():
     app = web.Application([
         (r"/", MainHandler),
@@ -153,6 +163,8 @@ def main():
         (r"/accounts/signup/?", "accounts.RegisterHandler"),
         (r"/accounts/new", "accounts.NewAccountHandler"),
         (r"/accounts/login", LoginHandler),
+        (r"/accounts/logout", LogoutHandler),
+        (r"/imagewall", ImageWallHandler),
     ])
     app.cgi_run()
 

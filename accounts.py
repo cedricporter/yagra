@@ -6,6 +6,7 @@
 import web
 from db import db
 import time
+from base import RequestHandlerWithSession, authenticated
 
 
 class RegisterHandler(web.RequestHandler):
@@ -72,7 +73,8 @@ class NewAccountHandler(web.RequestHandler):
         self.write("Username: %s registered success!" % username)
 
 
-class AccountHandler(web.RequestHandler):
+class AccountHandler(RequestHandlerWithSession):
+    @authenticated
     def get(self):
         cursor = db.cursor()
         cursor.execute("SELECT user_email, user_login FROM yagra_user")

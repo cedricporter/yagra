@@ -187,7 +187,7 @@ class RequestHandler(object):
                 days=expires_days)
         if expires:
             timestamp = calendar.timegm(expires.utctimetuple())
-            morsel["expires"] = email.utils.formatdate(
+            morsel["expires"] = email.Utils.formatdate(
                 timestamp, localtime=False, usegmt=True)
         if path:
             morsel["path"] = path
@@ -198,6 +198,10 @@ class RequestHandler(object):
         expires = datetime.datetime.utcnow() - datetime.timedelta(days=365)
         self.set_cookie(name, value="", path=path,
                         expires=expires, domain=domain)
+
+    def clear_all_cookies(self):
+        for name in self.request.cookies.iterkeys():
+            self.clear_cookie(name)
 
     def redirect(self, url, permanent=False, status=None):
         if status is None:
