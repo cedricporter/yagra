@@ -74,6 +74,8 @@ class EnvironHandler(web.RequestHandler):
         import os
         self.set_header("Content-Type", "text/plain")
         self.write(str(os.environ))
+        self.write("-" * 500)
+        self.write(str(self.cookies))
 
 
 def main():
@@ -85,6 +87,7 @@ def main():
         (r"/accounts/?", "accounts.AccountHandler"),
         (r"/accounts/signup/?", "accounts.RegisterHandler"),
         (r"/accounts/new", "accounts.NewAccountHandler"),
+        (r"/accounts/login", "accounts.LoginHandler"),
     ])
     app.cgi_run()
 

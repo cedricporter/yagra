@@ -37,7 +37,7 @@ class HTTPConnection(object):
 
 
 class HTTPRequest(object):
-    def __init__(self, method, uri, query, headers=None,
+    def __init__(self, method, uri, query, cookie_string="", headers=None,
                  remote_ip=None, host=None, connection=None
                  ):
         self.method = method
@@ -50,6 +50,7 @@ class HTTPRequest(object):
         self.arguments = {}
         self.connection = connection
         self.files = {}
+        self.cookie_string = cookie_string
 
         # TODO: 这里需要将cgi底层操作独立抽象出来
         form = cgi.FieldStorage()
@@ -62,6 +63,15 @@ class HTTPRequest(object):
 
     def write(self, chunk):
         self.connection.write(chunk)
+
+    @property
+    def cookies(self):
+        "需要的时候再解析cookie"
+        if not hasattr(self, "_cookies"):
+            self._cookies = Cookie.SimpleCookie()
+            if self.cookie_string:
+                self._cookies.load(self.cookie_string)
+        return self._cookies
 
 
 class HTTPError(Exception):
@@ -158,6 +168,11 @@ class RequestHandler(object):
     @property
     def cookies(self):
         return self.request.cookies
+
+    @property
+    def session(self):
+        if not hasattr(self, "_session"):
+            self._session =
 
     def set_cookie(self, name, value, domain=None, expires=None, path="/",
                    expires_days=None, max_age=None):
@@ -283,6 +298,7 @@ class Application(object):
         request = HTTPRequest(env["REQUEST_METHOD"],
                               env["REQUEST_URI"],
                               env.get("QUERY_STRING"),
+                              env.get("HTTP_COOKIE"),
                               None,
                               env["REMOTE_ADDR"],
                               env.get("HTTP_HOST"),

@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS `yagra_image`;
 DROP TABLE IF EXISTS `yagra_user`;
+DROP TABLE IF EXISTS `yagra_session`;
 
 -- 用户表
 CREATE TABLE `yagra_user` (
@@ -25,6 +26,14 @@ CREATE TABLE `yagra_image` (
   KEY `user_id_ind` (`user_id`),
   CONSTRAINT `yagra_image_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `yagra_user` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Session表
+CREATE TABLE `yagra_session` (
+  `session_id` char(128) NOT NULL,
+  `atime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `data` text,
+  PRIMARY KEY (`session_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- 添加用户
 GRANT select, update, insert ON yagra.* to `yagra`@`localhost` IDENTIFIED BY 'yagra_p@$$w0rd';

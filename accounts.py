@@ -74,5 +74,35 @@ class NewAccountHandler(web.RequestHandler):
 
 class AccountHandler(web.RequestHandler):
     def get(self):
-        self.write("account")
-        self.redirect("/accounts/signup")
+        cursor = db.cursor()
+        cursor.execute("SELECT user_email, user_login FROM yagra_user")
+        for row in cursor.fetchall():
+            email, name = row
+            self.write("%s: %s<br/>" % (name, email))
+
+
+class LoginHandler(web.RequestHandler):
+    def get(self):
+        html = """
+<html>
+  <body>
+    <form action="/accounts/login" method="post">
+      <input type="text" name="username">
+      <input type="password" name="password">
+      <input type="submit">
+    </form>
+  </body>
+</html>
+        """
+        self.write(html)
+
+    def post(self):
+        username = self.get_argument("username")
+        password = self.get_argument("password")
+
+        cursor = db.cursor()
+        cursor.execute("SELECT ID FROM yagra_user WHERE user_login = %s AND user_passwd = %s", (username, password))
+        if cursor.fetchone():
+            self.set_cookie("session_id", "123456")
+            return self.redirect("/")
+        self.write("Error")
