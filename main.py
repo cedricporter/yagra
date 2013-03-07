@@ -10,6 +10,7 @@ import web
 import logging
 from db import db
 from base import MyBaseRequestHandler, RequestHandlerWithSession, authenticated
+from template import *
 
 
 logging.getLogger().setLevel(logging.INFO)
@@ -26,18 +27,13 @@ class ImageWallHandler(MyBaseRequestHandler):
         imgs = ""
         c = db.cursor()
         c.execute("SELECT filename, upload_date FROM yagra_image")
-        for filename, upload_date in c.fetchall():
-            imgs += '<div><p>' + upload_date.ctime() + '</p>'
-            imgs += '<img src="/uploads/' + filename + '"/>'
-            imgs += '</div>'
 
-        html = """
-        <body>
-          %s
-        </body>
-        """ % imgs
+        html_string = html(
+            [[div(p(upload_date.ctime())),
+              img(src="/uploads/" + filename)]
+              for filename, upload_date in c.fetchall()])
 
-        self.write(html)
+        self.write(html_string)
 
 
 class EchoHandler(RequestHandlerWithSession):

@@ -14,23 +14,15 @@ class UserHomeHandler(RequestHandlerWithSession):
     @authenticated
     def get(self):
         username = self.session["username"]
-        info = "username: " + username
-
-        imgs = ""
 
         c = db.cursor()
         c.execute("SELECT filename, upload_date FROM yagra_image, yagra_user WHERE user_login = %s AND user_id = ID", (username, ))
-        for filename, upload_date in c.fetchall():
-            imgs += '<div><p>' + upload_date.ctime() + '</p>'
-            imgs += '<img width="80" height="80" src="/uploads/' + filename + '"/>'
-            imgs += '</div>'
-        c.close()
 
         html_string = html(
             head(
                 title("Yagra")),
             body(
-                info, imgs,
+                "username: " + username,
                 form(input(type="text", name="username"),
                      input(type="file", name="user_head"),
                      input(type="submit"),
@@ -39,6 +31,9 @@ class UserHomeHandler(RequestHandlerWithSession):
                      enctype="multipart/form-data"),
                 a("login", href="/accounts/login"),
                 a("logout", href="/accounts/logout"),
+                [[div(p(upload_date.ctime())),
+                  img(src="/uploads/" + filename)]
+                  for filename, upload_date in c.fetchall()],
                 ))
 
         self.write(html_string)

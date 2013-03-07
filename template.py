@@ -14,7 +14,7 @@
 """
 
 from string import Template
-from itertools import chain
+from util import flatten
 
 
 t = Template("""
@@ -25,8 +25,7 @@ def $tag(*args, **kwargs):
         prefix += '%s="%s" ' % (k, str(v))
     prefix += ">"
 
-    chains = chain.from_iterable(args)
-    string = prefix + "".join(chains) + "</$tag>"
+    string = prefix + "".join(flatten(args)) + "</$tag>"
 
     return string
 """)
