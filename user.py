@@ -12,10 +12,19 @@ from base import RequestHandlerWithSession, authenticated
 class UserHomeHandler(RequestHandlerWithSession):
     @authenticated
     def get(self):
-        if self.session.get("login"):
-            info = "username: " + self.session["username"]
-        else:
-            info = ""
+        username = self.session["username"]
+        info = "username: " + username
+
+        imgs = ""
+
+        c = db.cursor()
+        c.execute("SELECT filename, upload_date FROM yagra_image, yagra_user WHERE user_login = %s AND user_id = ID", (username, ))
+        for filename, upload_date in c.fetchall():
+            imgs += '<div><p>' + upload_date.ctime() + '</p>'
+            imgs += '<img width="80" height="80" src="/uploads/' + filename + '"/>'
+            imgs += '</div>'
+        c.close()
+
         html = """
 <html>
   <head>
@@ -32,9 +41,12 @@ class UserHomeHandler(RequestHandlerWithSession):
     </form>
     <a href="/accounts/login">login</a>
     <a href="/accounts/logout">logout</a>
+    <div>
+      %s
+    </div>
   </body>
 </html>
-        """ % info
+        """ % (info, imgs)
         self.write(html)
 
 
@@ -71,4 +83,4 @@ class UploadImageHandler(RequestHandlerWithSession):
         self.set_header("Content-Type", "text/plain")
         self.write(str(self.request.files["user_head"].type))
 
-        self.redirect("/")
+        self.redirect("/user")
