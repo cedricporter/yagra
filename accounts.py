@@ -4,6 +4,7 @@
 #
 
 import web
+import logging
 from db import db
 import time
 from base import RequestHandlerWithSession, authenticated
@@ -81,3 +82,43 @@ class AccountHandler(RequestHandlerWithSession):
         for row in cursor.fetchall():
             email, name = row
             self.write("%s: %s<br/>" % (name, email))
+
+
+class LoginHandler(RequestHandlerWithSession):
+    def get(self):
+        html = """
+<html>
+  <body>
+    <form action="/accounts/login" method="post">
+      <input type="text" name="username">
+      <input type="password" name="password">
+      <input type="submit">
+    </form>
+  </body>
+</html>
+        """
+        if self.session.get("login"):
+            self.redirect("/")
+        else:
+            self.write(html)
+
+    def post(self):
+        username = self.get_argument("username")
+        password = self.get_argument("password")
+
+        cursor = db.cursor()
+        cursor.execute("SELECT ID FROM yagra_user WHERE user_login = %s AND user_passwd = %s", (username, password))
+        row = cursor.fetchone()
+        if row:
+            logging.info(row)
+            self.session["login"] = True
+            self.session["username"] = username
+            self.set_cookie("session_id", self.session.session_id)
+            return self.redirect("/")
+        self.write("Error")
+
+
+class LogoutHandler(RequestHandlerWithSession):
+    def get(self):
+        self.clear_all_cookies()
+        self.redirect(self.get_login_url())
