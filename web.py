@@ -15,8 +15,16 @@ import sys
 import traceback
 import urlparse
 import session
+import urllib
 
 from util import import_object
+
+
+def utf8(value):
+    if isinstance(value, (type(None), str)):
+        return value
+    assert isinstance(value, unicode)
+    return value.encode("utf-8")
 
 
 class StdStream(object):
@@ -211,6 +219,7 @@ class RequestHandler(object):
                                                      url))
 
     def write(self, chunk):
+        chunk = utf8(chunk)
         self._write_buffer.append(chunk)
 
     def _generate_headers(self):
@@ -231,11 +240,11 @@ class RequestHandler(object):
 
         self.request.write("".join(self._write_buffer))
 
-    def _execute(self):
+    def _execute(self, *args):
         try:
             self.prepare()
 
-            getattr(self, self.request.method.lower())()
+            getattr(self, self.request.method.lower())(*args)
 
             self.finalize()
         except Exception, e:
@@ -300,13 +309,13 @@ class Application(object):
         connection = HTTPConnection(stream)
 
         env = os.environ
-        request = HTTPRequest(env["REQUEST_METHOD"],
-                              env["REQUEST_URI"],
-                              env.get("QUERY_STRING"),
-                              env.get("HTTP_COOKIE"),
+        request = HTTPRequest(unicode(env["REQUEST_METHOD"], encoding="utf-8"),
+                              unicode(env["REQUEST_URI"], encoding="utf-8"),
+                              unicode(env.get("QUERY_STRING"), encoding="utf-8"),
+                              unicode(env.get("HTTP_COOKIE"), encoding="utf-8"),
                               None,
-                              env["REMOTE_ADDR"],
-                              env.get("HTTP_HOST"),
+                              unicode(env["REMOTE_ADDR"], encoding="utf-8"),
+                              unicode(env.get("HTTP_HOST"), encoding="utf-8"),
                               connection)
         self._request = request
 
@@ -315,16 +324,18 @@ class Application(object):
         path = request.path
 
         handler = None
+        args = []
 
         for spec in self.handlers:
             match = spec.regex.match(path)
             if match:
                 handler = spec.handler_class(self, request)
+                args = [unicode(urllib.unquote_plus(utf8(m)), "utf-8") for m in match.groups()]
 
         if not handler:
             handler = ErrorHandler(self, request, status_code=404)
 
-        handler._execute()
+        handler._execute(*args)
         return handler
 
     def cgi_run(self):

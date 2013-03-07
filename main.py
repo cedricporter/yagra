@@ -24,7 +24,6 @@ class MainHandler(RequestHandlerWithSession):
 class ImageWallHandler(MyBaseRequestHandler):
     "Show all head image"
     def get(self):
-        imgs = ""
         c = db.cursor()
         c.execute("SELECT filename, upload_date FROM yagra_image")
 
@@ -42,20 +41,28 @@ class EchoHandler(RequestHandlerWithSession):
 
 
 class EnvironHandler(MyBaseRequestHandler):
-    def get(self):
-        import os
-        self.set_header("Content-Type", "text/plain")
-        self.write(str(os.environ))
-        self.write("-" * 500)
-        self.write(str(self.cookies))
+    def get(self, username):
+        c = db.cursor()
+        c.execute("SELECT user_email FROM yagra_user WHERE user_login = %s", (username, ))
+        row = c.fetchone()
+        if row:
+            self.write(row[0])
+
+
+class AvatarHandler(MyBaseRequestHandler):
+    def get(self, email_hash):
+        self.write(email_hash)
+        self.write(self.get_argument("name", ""))
 
 
 def main():
     app = web.Application([
         (r"/", MainHandler),
+        (r"/(.*?)", EnvironHandler),
         (r"/echo", EchoHandler),
         (r"/env", EnvironHandler),
         (r"/user", "user.UserHomeHandler"),
+        (r"/avatar/(.*)", AvatarHandler),
         (r"/user/upload", "user.UploadImageHandler"),
         (r"/accounts/?", "accounts.AccountHandler"),
         (r"/accounts/signup/?", "accounts.RegisterHandler"),
