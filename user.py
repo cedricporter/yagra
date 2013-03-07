@@ -7,6 +7,7 @@ import web
 import logging
 from db import db
 from base import RequestHandlerWithSession, authenticated
+from template import *
 
 
 class UserHomeHandler(RequestHandlerWithSession):
@@ -25,29 +26,22 @@ class UserHomeHandler(RequestHandlerWithSession):
             imgs += '</div>'
         c.close()
 
-        html = """
-<html>
-  <head>
-    <title>
-      Yagra
-    </title>
-  </head>
-  <body>
-    %s
-    <form action="/user/upload" method="post" enctype="multipart/form-data">
-      <input type="text" name="username"/>
-      <input type="file" name="user_head"/>
-      <input type="submit"/>
-    </form>
-    <a href="/accounts/login">login</a>
-    <a href="/accounts/logout">logout</a>
-    <div>
-      %s
-    </div>
-  </body>
-</html>
-        """ % (info, imgs)
-        self.write(html)
+        html_string = html(
+            head(
+                title("Yagra")),
+            body(
+                info, imgs,
+                form(input(type="text", name="username"),
+                     input(type="file", name="user_head"),
+                     input(type="submit"),
+                     action="/user/upload",
+                     method="post",
+                     enctype="multipart/form-data"),
+                a("login", href="/accounts/login"),
+                a("logout", href="/accounts/logout"),
+                ))
+
+        self.write(html_string)
 
 
 class UploadImageHandler(RequestHandlerWithSession):

@@ -8,27 +8,23 @@ import logging
 from db import db
 import time
 from base import RequestHandlerWithSession, authenticated
+from template import *
 
 
 class RegisterHandler(web.RequestHandler):
     def get(self):
-        html = """
-<html>
-  <title>
-    注册
-  </title>
-  <body>
-    <form action="/accounts/new" method="post">
-      Username: <input type="text" name="username"/>
-      Email: <input type="text" name="email"/>
-      Password: <input type="password" name="password"/>
-      Password(again): <input type="password" name="password-again"/>
-      <input type="submit"/>
-    </form>
-  </body>
-</html>
-        """
-        self.write(html)
+        html_string = html(
+            head(title("注册")),
+            body(
+                form("Username:", input(type="text", name="username"),
+                     "Email:", input(type="text", name="email"),
+                     "Password", input(type="password", name="password"),
+                     "Password(again)", input(type="password", name="password-again"),
+                     input(type="submit"),
+                     action="/accounts/new",
+                     method="post"),
+                ))
+        self.write(html_string)
 
 
 class NewAccountHandler(web.RequestHandler):
@@ -86,21 +82,19 @@ class AccountHandler(RequestHandlerWithSession):
 
 class LoginHandler(RequestHandlerWithSession):
     def get(self):
-        html = """
-<html>
-  <body>
-    <form action="/accounts/login" method="post">
-      <input type="text" name="username">
-      <input type="password" name="password">
-      <input type="submit">
-    </form>
-  </body>
-</html>
-        """
+        html_string = html(
+            body(
+                form(
+                    input(type="text", name="username"),
+                    input(type="password", name="password"),
+                    input(type="submit"),
+                    action="/accounts/login",
+                    method="post")))
+
         if self.session.get("login"):
             self.redirect("/")
         else:
-            self.write(html)
+            self.write(html_string)
 
     def post(self):
         username = self.get_argument("username")
