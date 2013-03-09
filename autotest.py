@@ -10,6 +10,11 @@ import sys
 import os
 
 
+def is_in(target_string, *args):
+    return reduce(lambda x, y: x and y,
+                  [s in target_string for s in args])
+
+
 def create_cgi_environ():
     cgi_environ = {'HTTP_COOKIE': '',
                    'REQUEST_URI': '/imagewall?name=cedricporter&age=22',
@@ -43,7 +48,9 @@ class EnvSetup(object):
 
     def __enter__(self):
         self.backup_env = os.environ
+        import web
         os.environ  = create_cgi_environ()
+        web.cgi_environ = os.environ
 
         self.io = StringIO.StringIO()
         self.backup_stdout = sys.stdout
@@ -72,6 +79,21 @@ class EnvSetup(object):
         del os.environ[key]
 
 
+class WriteStdin:
+    def __init__(self, data):
+        self._data = data
+
+    def __enter__(self):
+        import web
+        web.cgi_fp = StringIO.StringIO()
+        web.cgi_fp.write(self._data)
+        web.cgi_fp.seek(0)
+
+    def __exit__(self, type, value, traceback):
+        import web
+        web.cgi_fp = sys.stdin
+
+
 class Test(unittest.TestCase):
     output = True
 
@@ -95,8 +117,17 @@ class Test(unittest.TestCase):
         with EnvSetup(self.output) as env:
             env["REQUEST_URI"] = "/accounts/login"
             env["REQUEST_METHOD"] = "POST"
+            env["QUERY_STRING"] = ""
+            env["Content-Type"] = "application/x-www-form-urlencoded"
 
             body = "username=a&password=123123"
+            env["Content-Length"] = str(len(body))
+
+            with WriteStdin(body):
+                main.main()
+
+            output = env.getoutput()
+            self.assertTrue(is_in(output, "Location: ", "Status: 302"))
 
 
 if __name__ == '__main__':

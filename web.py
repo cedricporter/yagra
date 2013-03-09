@@ -20,6 +20,10 @@ import urllib
 from util import import_object
 
 
+cgi_fp = sys.stdin                        # for debug
+cgi_environ = os.environ
+
+
 def utf8(value):
     if isinstance(value, (type(None), str)):
         return value
@@ -62,7 +66,7 @@ class HTTPRequest(object):
         self.cookie_string = cookie_string
 
         # TODO: 这里需要将cgi底层操作独立抽象出来
-        form = cgi.FieldStorage()
+        form = cgi.FieldStorage(cgi_fp, environ=cgi_environ)
         for key in form.keys():
             item = form[key]
             if item.file:
