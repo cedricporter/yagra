@@ -41,6 +41,9 @@ def create_cgi_environ():
 
 
 class EnvSetup(object):
+    def __init__(self, output=True):
+        self.output = output
+
     def __enter__(self):
         self.backup_env = os.environ
         os.environ  = create_cgi_environ()
@@ -48,25 +51,49 @@ class EnvSetup(object):
         self.io = StringIO.StringIO()
         self.backup_stdout = sys.stdout
         sys.stdout = self.io
+        sys.stderr = StringIO.StringIO()   # no logging info
 
         return self
 
     def __exit__(self, type, value, traceback):
         sys.stdout = self.backup_stdout
         os.environ = self.backup_env
+        if self.output:
+            print
+            print self.getoutput()
 
     def getoutput(self):
         return self.io.getvalue()
 
+    def __getitem__(self, key):
+        return os.environ[key]
+
+    def __setitem__(self, key, value):
+        os.environ[key] = value
+
+    def __delitem__(self, key):
+        del os.environ[key]
+
 
 class Test(unittest.TestCase):
+    output = True
+
     def testHello(self):
-
-        with EnvSetup() as env:
+        with EnvSetup(self.output):
             main.main()
-            out = env.getoutput()
 
-        print out
+    def testAccount(self):
+        with EnvSetup(self.output) as env:
+            env["REQUEST_URI"] = "/accounts"
+            main.main()
+            self.assertTrue("Location: /accounts/login" in env.getoutput())
+
+    def testUserNotLogin(self):
+        with EnvSetup(self.output) as env:
+            env["REQUEST_URI"] = "/user"
+            main.main()
+            self.assertTrue("Location: /accounts/login" in env.getoutput())
+
 
 if __name__ == '__main__':
     unittest.main()
