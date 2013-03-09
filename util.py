@@ -3,6 +3,8 @@
 # Author: Hua Liang[Stupid ET] <et@everet.org>
 #
 
+import hashlib
+
 
 def import_object(name):
     parts = name.split('.')
@@ -18,3 +20,14 @@ def flatten(nested):
         return flat
     flatten_in(nested, flat)
     return flat
+
+
+PASSWORD_SALT = "http://EverET.org"
+
+
+def hash_password(pwd):
+    "用sha1加上salt进行加密"
+    h = hashlib.sha1()
+    h.update(PASSWORD_SALT)
+    h.update(pwd)
+    return h.hexdigest()

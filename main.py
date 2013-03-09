@@ -39,9 +39,13 @@ class ImageWallHandler(MyBaseRequestHandler):
 
 class ProfileHandler(MyBaseRequestHandler):
     def get(self, username):
+        if not username:
+            self.write("fuck")
+            return
+
         c = db.cursor()
         c.execute("""
-        SELECT user_email, h.user_email_md5
+        SELECT user_email, user_email_md5
         FROM yagra_user as u, yagra_user_head as h
         WHERE u.ID = h.user_id  AND user_login = %s""", (username, ))
         row = c.fetchone()
@@ -51,12 +55,18 @@ class ProfileHandler(MyBaseRequestHandler):
                 body(email,
                      img(src="/avatar/" + email_md5, width="400", height="400")))
             self.write(html_string)
+        else:
+            self.redirect("/")
+            return
 
 
 class AvatarHandler(MyBaseRequestHandler):
     def get(self, email_md5):
         c = db.cursor()
-        c.execute("SELECT filename FROM yagra_image as img, yagra_user_head as head WHERE img.user_id = head.user_id AND user_email_md5 = %s",
+        c.execute("""
+        SELECT filename
+        FROM yagra_image as img, yagra_user_head as head
+        WHERE img.user_id = head.user_id AND user_email_md5 = %s""",
                   (email_md5, ))
         row = c.fetchone()
         if row:
@@ -72,17 +82,15 @@ class AvatarHandler(MyBaseRequestHandler):
             mime = mimetypes.types_map.get(os.path.splitext(filename)[-1], "image/jpeg")
             self.set_header("Content-Type", mime)
         else:
-            self.write(email_hash)
-            self.write(self.get_argument("name", ""))
             self.set_status(404)
 
 
 def main():
     app = web.Application([
         (r"/", MainHandler),
-        (r"/(.*?)", ProfileHandler),
+        (r"/(.+)", ProfileHandler),
         (r"/user", "user.UserHomeHandler"),
-        (r"/avatar/(.*)", AvatarHandler),
+        (r"/avatar/(.+)", AvatarHandler),
         (r"/user/upload", "user.UploadImageHandler"),
         (r"/accounts/?", "accounts.AccountHandler"),
         (r"/accounts/signup/?", "accounts.RegisterHandler"),

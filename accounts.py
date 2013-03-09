@@ -11,6 +11,7 @@ from base import RequestHandlerWithSession, authenticated
 from template import *
 import re
 from cgi import escape
+from util import hash_password
 
 
 not_user_pattern = re.compile("[^a-zA-Z0-9]")
@@ -33,7 +34,8 @@ class RegisterHandler(web.RequestHandler):
 
 
 class NewAccountHandler(web.RequestHandler):
-    def post(self):
+    def assure_input_valid(self):
+        # 检查用户名
         username = self.get_argument("username")
         if not_user_pattern.search(username):
             self.write("username %s is not valid" % (escape(username), ))
@@ -41,7 +43,7 @@ class NewAccountHandler(web.RequestHandler):
             return
         email = self.get_argument("email")
 
-        # 记得加salt加密！！
+        # 检查密码
         pwd = self.get_argument("password")
         pwd2 = self.get_argument("password-again")
 
@@ -49,6 +51,7 @@ class NewAccountHandler(web.RequestHandler):
             self.write("two password not matched")
             return                        # XXX
 
+        # 检查email
         cursor = db.cursor()
         cursor.execute("SELECT ID FROM yagra_user WHERE user_email = %s", (email, ))
         if cursor.fetchone():
@@ -62,6 +65,18 @@ class NewAccountHandler(web.RequestHandler):
             self.set_status(403)
             return
 
+        return username, pwd, email
+
+    def post(self):
+        cursor = db.cursor()
+
+        data = self.assure_input_valid()
+        if not data:
+            return
+        username, pwd, email = data
+
+        hash_pwd = hash_password(pwd)
+
         cursor.execute("""
         INSERT INTO `yagra`.`yagra_user`
         (
@@ -73,7 +88,7 @@ class NewAccountHandler(web.RequestHandler):
         `user_status`)
         VALUES
         (%s, %s, %s, %s, %s, %s)
-        """, (username, pwd, username,
+        """, (username, hash_pwd, username,
               email,
               time.strftime('%Y-%m-%d %H:%M:%S'), str(1)))
         db.commit()
@@ -110,7 +125,8 @@ class LoginHandler(RequestHandlerWithSession):
 
     def post(self):
         username = self.get_argument("username")
-        password = self.get_argument("password")
+        pwd = self.get_argument("password")
+        password = hash_password(pwd)
 
         cursor = db.cursor()
         cursor.execute("SELECT ID FROM yagra_user WHERE user_login = %s AND user_passwd = %s", (username, password))
@@ -120,7 +136,7 @@ class LoginHandler(RequestHandlerWithSession):
             self.session["login"] = True
             self.session["username"] = username
             self.set_cookie("session_id", self.session.session_id)
-            return self.redirect("/")
+            return self.redirect("/user")
         self.write("Error")
 
 

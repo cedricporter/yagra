@@ -130,6 +130,19 @@ class Test(unittest.TestCase):
 
     def testUserLogin(self):
         with EnvSetup(self.output) as env:
+            env["REQUEST_METHOD"] = "POST"
+            env["REQUEST_URI"] = "/accounts/new"
+            env["Content-Type"] = "application/x-www-form-urlencoded"
+
+            username = "a"
+            email = username + "@gmail.com"
+            body = "username=%s&email=%s&password=123123&password-again=123123" % (username, email)
+            env["Content-Length"] = str(len(body))
+
+            with WriteStdin(body):
+                main.main()
+
+        with EnvSetup(self.output) as env:
             env["REQUEST_URI"] = "/accounts/login"
             env["REQUEST_METHOD"] = "POST"
             env["Content-Type"] = "application/x-www-form-urlencoded"
@@ -146,7 +159,7 @@ class Test(unittest.TestCase):
                        "Status: (2|3)",
                        "Set-Cookie: session_id=[a-z0-9]")
 
-    def testSignup(self):
+    def testSignup(self, username=None):
         with EnvSetup(self.output) as env:
             env["REQUEST_METHOD"] = "POST"
             env["REQUEST_URI"] = "/accounts/new"
