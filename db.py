@@ -7,7 +7,8 @@ import MySQLdb
 db = MySQLdb.connect(host="localhost",
                      user="yagra",
                      passwd="yagra_p@$$w0rd",
-                     db="yagra")
+                     db="yagra",
+                     charset="utf8")
 
 
 def random_string(length=10):
