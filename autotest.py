@@ -104,6 +104,9 @@ class WriteStdin:
 class Test(unittest.TestCase):
     output = True
 
+    def is_in(self, target_string, *args):
+        self.assertTrue(is_in(target_string, *args))
+
     def testHello(self):
         with EnvSetup(self.output):
             main.main()
@@ -112,19 +115,18 @@ class Test(unittest.TestCase):
         with EnvSetup(self.output) as env:
             env["REQUEST_URI"] = "/accounts"
             main.main()
-            self.assertTrue(is_in(env.getoutput(),
-                                  "Location: /accounts/login",
-                                  "Status: (2|3)"))
+            self.is_in(env.getoutput(),
+                       "Location: /accounts/login",
+                       "Status: (2|3)")
 
     def testUserWhenNotLogin(self):
         with EnvSetup(self.output) as env:
             env["REQUEST_URI"] = "/user"
             main.main()
-            self.assertTrue(is_in(env.getoutput(),
-                                  "Location: /accounts/login",
-                                  "Status: (2|3)",
-                                  "Set-Cookie: session_id=;",
-                                  ))
+            self.is_in(env.getoutput(),
+                       "Location: /accounts/login",
+                       "Status: (2|3)",
+                       "Set-Cookie: session_id=;")
 
     def testUserLogin(self):
         with EnvSetup(self.output) as env:
@@ -139,11 +141,10 @@ class Test(unittest.TestCase):
                 main.main()
 
             output = env.getoutput()
-            self.assertTrue(is_in(output,
-                                  "Location: ",
-                                  "Status: (2|3)",
-                                  "Set-Cookie: session_id=[a-z0-9]",
-                                  ))
+            self.is_in(output,
+                       "Location: ",
+                       "Status: (2|3)",
+                       "Set-Cookie: session_id=[a-z0-9]")
 
     def testSignup(self):
         with EnvSetup(self.output) as env:
@@ -160,10 +161,9 @@ class Test(unittest.TestCase):
                 main.main()
 
             output = env.getoutput()
-            self.is_in(output, "registered success!")
-
-    def is_in(self, target_string, *args):
-        self.assertTrue(is_in(target_string, *args))
+            self.is_in(output,
+                       "registered success!",
+                       "Status: 200")
 
 
 if __name__ == '__main__':

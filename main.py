@@ -11,14 +11,16 @@ import logging
 from db import db
 from base import MyBaseRequestHandler, RequestHandlerWithSession, authenticated
 from template import *
+import mimetypes
+import os
 
 
 logging.getLogger().setLevel(logging.INFO)
 
 
-class MainHandler(RequestHandlerWithSession):
+class MainHandler(MyBaseRequestHandler):
     def get(self):
-        self.write("Home")
+        self.write("xxx" * 100)
 
 
 class ImageWallHandler(MyBaseRequestHandler):
@@ -51,14 +53,32 @@ class EnvironHandler(MyBaseRequestHandler):
 
 class AvatarHandler(MyBaseRequestHandler):
     def get(self, email_hash):
-        self.write(email_hash)
-        self.write(self.get_argument("name", ""))
+        c = db.cursor()
+        c.execute("SELECT filename FROM yagra_user, yagra_image WHERE user_id = id AND user_email = %s", (email_hash, ))
+        row = c.fetchall()
+        if row:
+            filename = row[-1][0]
+            logging.info(row)
+            with open("uploads/" + filename, "rb") as f:
+                logging.info(f)
+                img = f.read()
+                length = len(img)
+                self.write(img)
+                logging.info("Length: %d" % length)
+                self.set_header("Content-Length", length)
+
+            mime = mimetypes.types_map.get(os.path.splitext(filename)[-1], "image/jpeg")
+            self.set_header("Content-Type", mime)
+        else:
+            self.write(email_hash)
+            self.write(self.get_argument("name", ""))
+            self.set_status(404)
 
 
 def main():
     app = web.Application([
         (r"/", MainHandler),
-        (r"/(.*?)", EnvironHandler),
+        # (r"/(.*?)", EnvironHandler),
         (r"/echo", EchoHandler),
         (r"/env", EnvironHandler),
         (r"/user", "user.UserHomeHandler"),

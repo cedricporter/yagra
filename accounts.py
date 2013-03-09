@@ -103,8 +103,9 @@ class LoginHandler(RequestHandlerWithSession):
                     method="post")))
 
         if self.session.get("login"):
-            self.redirect("/")
+            self.redirect("/user")
         else:
+            self.session.kill()
             self.write(html_string)
 
     def post(self):
@@ -126,4 +127,5 @@ class LoginHandler(RequestHandlerWithSession):
 class LogoutHandler(RequestHandlerWithSession):
     def get(self):
         self.clear_all_cookies()
+        self.session.kill()
         self.redirect(self.get_login_url())
