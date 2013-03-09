@@ -9,6 +9,11 @@ import StringIO
 import sys
 import os
 import re
+import random
+import string
+
+
+PRINT_STDERR = True
 
 
 def is_in(target_string, *args):
@@ -23,7 +28,7 @@ def create_cgi_environ():
                    'SCRIPT_NAME': '/main.py',
                    'REQUEST_METHOD': 'GET',
                    'SERVER_PROTOCOL': 'HTTP/1.1',
-                   'QUERY_STRING': 'name=cedricporter&age=22',
+                   'QUERY_STRING': '',
                    'HTTP_ACCEPT_CHARSET': 'UTF-8,*;q=0.5',
                    'HTTP_USER_AGENT': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.17 (KHTML, like Gecko) Ubuntu Chromium/24.0.1312.56 Chrome/24.0.1312.56 Safari/537.17',
                    'HTTP_CONNECTION': 'keep-alive',
@@ -56,7 +61,8 @@ class EnvSetup(object):
         self.io = StringIO.StringIO()
         self.backup_stdout = sys.stdout
         sys.stdout = self.io
-        sys.stderr = StringIO.StringIO()   # no logging info
+        if not PRINT_STDERR:
+            sys.stderr = StringIO.StringIO()   # no logging info
 
         return self
 
@@ -116,13 +122,14 @@ class Test(unittest.TestCase):
             main.main()
             self.assertTrue(is_in(env.getoutput(),
                                   "Location: /accounts/login",
-                                  "Status: (2|3)"))
+                                  "Status: (2|3)",
+                                  "Set-Cookie: session_id=;",
+                                  ))
 
     def testUserLogin(self):
         with EnvSetup(self.output) as env:
             env["REQUEST_URI"] = "/accounts/login"
             env["REQUEST_METHOD"] = "POST"
-            env["QUERY_STRING"] = ""
             env["Content-Type"] = "application/x-www-form-urlencoded"
 
             body = "username=a&password=123123"
@@ -132,7 +139,31 @@ class Test(unittest.TestCase):
                 main.main()
 
             output = env.getoutput()
-            self.assertTrue(is_in(output, "Location: ", "Status: (2|3)"))
+            self.assertTrue(is_in(output,
+                                  "Location: ",
+                                  "Status: (2|3)",
+                                  "Set-Cookie: session_id=[a-z0-9]",
+                                  ))
+
+    def testSignup(self):
+        with EnvSetup(self.output) as env:
+            env["REQUEST_METHOD"] = "POST"
+            env["REQUEST_URI"] = "/accounts/new"
+            env["Content-Type"] = "application/x-www-form-urlencoded"
+
+            username = "".join(random.choice(string.letters + string.digits) for i in xrange(16))
+            email = username + "@gmail.com"
+            body = "username=%s&email=%s&password=asdf&password-again=asdf" % (username, email)
+            env["Content-Length"] = str(len(body))
+
+            with WriteStdin(body):
+                main.main()
+
+            output = env.getoutput()
+            self.is_in(output, "registered success!")
+
+    def is_in(self, target_string, *args):
+        self.assertTrue(is_in(target_string, *args))
 
 
 if __name__ == '__main__':

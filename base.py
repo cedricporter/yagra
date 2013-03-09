@@ -19,6 +19,8 @@ def authenticated(method):
 
             url = self.get_login_url() or "/"
             self.redirect(url)
+            self.session.kill()
+            logging.info("Session killed")
             return
         return method(self, *args, **kwargs)
     return wrapper
@@ -33,17 +35,16 @@ class RequestHandlerWithSession(MyBaseRequestHandler):
     @property
     def session(self):
         if not hasattr(self, "_session"):
-            self._session = Session(MySQLStore(db, "yagra_session"))
+            self._session = Session(MySQLStore(db, "yagra_session"), self)
             session_id = self.cookies.get("session_id")
             if session_id:
                 session_id = session_id.value
                 self._session._load(session_id)
             else:
                 self._session._load()
-                session_id = self._session.session_id
-                self.set_cookie("session_id", session_id)
         return self._session
 
     def finalize(self):
         if hasattr(self, "_session"):
             self._session._save()
+            self._session.cleanup(86400 * 7)   # a week

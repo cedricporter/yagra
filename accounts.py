@@ -37,6 +37,7 @@ class NewAccountHandler(web.RequestHandler):
         username = self.get_argument("username")
         if not_user_pattern.search(username):
             self.write("username %s is not valid" % (escape(username), ))
+            self.set_status(403)
             return
         email = self.get_argument("email")
 
@@ -51,12 +52,14 @@ class NewAccountHandler(web.RequestHandler):
         cursor = db.cursor()
         cursor.execute("SELECT ID FROM yagra_user WHERE user_email = %s", (email, ))
         if cursor.fetchone():
-            self.write("email %s registered!" % email)
+            self.write("email %s registered!" % escape(email))
+            self.set_status(403)
             return
 
         cursor.execute("SELECT ID FROM yagra_user WHERE user_login = %s", (username, ))
         if cursor.fetchone():
-            self.write("username %s registered!" % username)
+            self.write("username %s registered!" % escape(username))
+            self.set_status(403)
             return
 
         cursor.execute("""
@@ -75,7 +78,7 @@ class NewAccountHandler(web.RequestHandler):
               time.strftime('%Y-%m-%d %H:%M:%S'), str(1)))
         db.commit()
 
-        self.write("Username: %s registered success!" % username)
+        self.write("Username: %s registered success!" % escape(username))
 
 
 class AccountHandler(RequestHandlerWithSession):

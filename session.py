@@ -11,9 +11,10 @@ import uuid
 
 
 class Session(object):
-    def __init__(self, store):
+    def __init__(self, store, handler):
         self._data = {}
         self.store = store
+        self.handler = handler
 
     def __contains__(self, name):
         return name in self._data
@@ -37,12 +38,23 @@ class Session(object):
         self._data = self.store[self.session_id] or dict()
 
     def _save(self):
-        self.store[self.session_id] = self._data
+        if not hasattr(self, "_killed"):
+            self.store[self.session_id] = self._data
+            self.handler.set_cookie("session_id", self.session_id)
+        else:
+            self.handler.clear_cookie("session_id")
 
     def _generate_session_id(self):
         "Generate a 128 bytes string"
         session_id = "".join(uuid.uuid4().hex for i in xrange(4))
         return session_id
+
+    def cleanup(self, timeout):
+        self.store.cleanup(timeout)
+
+    def kill(self):
+        del self.store[self.session_id]
+        self._killed = True
 
 
 class Store(object):

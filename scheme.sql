@@ -36,5 +36,5 @@ CREATE TABLE `yagra_session` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- 添加用户
-GRANT select, update, insert ON yagra.* to `yagra`@`localhost` IDENTIFIED BY 'yagra_p@$$w0rd';
+GRANT select, update, insert, delete ON yagra.* to `yagra`@`localhost` IDENTIFIED BY 'yagra_p@$$w0rd';
 FLUSH PRIVILEGES;
