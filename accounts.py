@@ -9,6 +9,11 @@ from db import db
 import time
 from base import RequestHandlerWithSession, authenticated
 from template import *
+import re
+from cgi import escape
+
+
+not_user_pattern = re.compile("[^a-zA-Z0-9]")
 
 
 class RegisterHandler(web.RequestHandler):
@@ -30,6 +35,9 @@ class RegisterHandler(web.RequestHandler):
 class NewAccountHandler(web.RequestHandler):
     def post(self):
         username = self.get_argument("username")
+        if not_user_pattern.search(username):
+            self.write("username %s is not valid" % (escape(username), ))
+            return
         email = self.get_argument("email")
 
         # 记得加salt加密！！

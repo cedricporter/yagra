@@ -312,7 +312,7 @@ class Application(object):
         request = HTTPRequest(unicode(env["REQUEST_METHOD"], encoding="utf-8"),
                               unicode(env["REQUEST_URI"], encoding="utf-8"),
                               unicode(env.get("QUERY_STRING"), encoding="utf-8"),
-                              unicode(env.get("HTTP_COOKIE"), encoding="utf-8"),
+                              env.get("HTTP_COOKIE"),
                               None,
                               unicode(env["REMOTE_ADDR"], encoding="utf-8"),
                               unicode(env.get("HTTP_HOST"), encoding="utf-8"),
