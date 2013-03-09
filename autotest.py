@@ -11,15 +11,13 @@ import os
 
 
 def create_cgi_environ():
-    cgi_environ = {'HTTP_COOKIE': 'user="eyJsYXN0X25hbWUiOiAiXHU1MzRlIiwgImZpcnN0X25hbWUiOiAiXHU0ZWFlIiwgImNsYWltZWRfaWQiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9hY2NvdW50cy9vOC9pZD9pZD1BSXRPYXdtTW9ESTNkRHBOY3VUMGV3UjlqZ0R1WTVUWE4wSFcyVmsiLCAibmFtZSI6ICJcdTRlYWUgXHU1MzRlIn0=|1361596265|aaf42e82dca23f9e9cc6ec133cd05ecd3185977a"; _xsrf=4abbfba06f684ee196a9fc0331dd7fcd',
+    cgi_environ = {'HTTP_COOKIE': '',
                    'REQUEST_URI': '/imagewall?name=cedricporter&age=22',
                    'SERVER_SOFTWARE': 'Apache/2.2.22 (Ubuntu)',
                    'SCRIPT_NAME': '/main.py',
-                   'SERVER_SIGNATURE': ' Apache/2.2.22 (Ubuntu) Server at localhost Port 80 \n',
                    'REQUEST_METHOD': 'GET',
                    'SERVER_PROTOCOL': 'HTTP/1.1',
                    'QUERY_STRING': 'name=cedricporter&age=22',
-                   'PATH': '/usr/local/bin:/usr/bin:/bin',
                    'HTTP_ACCEPT_CHARSET': 'UTF-8,*;q=0.5',
                    'HTTP_USER_AGENT': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.17 (KHTML, like Gecko) Ubuntu Chromium/24.0.1312.56 Chrome/24.0.1312.56 Safari/537.17',
                    'HTTP_CONNECTION': 'keep-alive',
@@ -29,7 +27,6 @@ def create_cgi_environ():
                    'SERVER_ADDR': '127.0.0.1',
                    'DOCUMENT_ROOT': '/home/cedricporter/projects/yagra',
                    'SCRIPT_FILENAME': '/home/cedricporter/projects/yagra/main.py',
-                   'SERVER_ADMIN': 'webmaster@localhost',
                    'HTTP_HOST': 'localhost',
                    'HTTP_CACHE_CONTROL': 'max-age=0',
                    'HTTP_ACCEPT': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -88,11 +85,18 @@ class Test(unittest.TestCase):
             main.main()
             self.assertTrue("Location: /accounts/login" in env.getoutput())
 
-    def testUserNotLogin(self):
+    def testUserWhenNotLogin(self):
         with EnvSetup(self.output) as env:
             env["REQUEST_URI"] = "/user"
             main.main()
             self.assertTrue("Location: /accounts/login" in env.getoutput())
+
+    def testUserLogin(self):
+        with EnvSetup(self.output) as env:
+            env["REQUEST_URI"] = "/accounts/login"
+            env["REQUEST_METHOD"] = "POST"
+
+            body = "username=a&password=123123"
 
 
 if __name__ == '__main__':
