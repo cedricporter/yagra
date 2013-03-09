@@ -37,18 +37,20 @@ class ImageWallHandler(MyBaseRequestHandler):
         self.write(html_string)
 
 
-class EchoHandler(RequestHandlerWithSession):
-    def get(self):
-        self.write(str(self.session.get("username")))
-
-
-class EnvironHandler(MyBaseRequestHandler):
+class ProfileHandler(MyBaseRequestHandler):
     def get(self, username):
         c = db.cursor()
-        c.execute("SELECT user_email FROM yagra_user WHERE user_login = %s", (username, ))
+        c.execute("""
+        SELECT user_email, h.user_email_md5
+        FROM yagra_user as u, yagra_user_head as h
+        WHERE u.ID = h.user_id  AND user_login = %s""", (username, ))
         row = c.fetchone()
         if row:
-            self.write(row[0])
+            email, email_md5 = row
+            html_string = html(
+                body(email,
+                     img(src="/avatar/" + email_md5, width="400", height="400")))
+            self.write(html_string)
 
 
 class AvatarHandler(MyBaseRequestHandler):
@@ -78,9 +80,7 @@ class AvatarHandler(MyBaseRequestHandler):
 def main():
     app = web.Application([
         (r"/", MainHandler),
-        # (r"/(.*?)", EnvironHandler),
-        (r"/echo", EchoHandler),
-        (r"/env", EnvironHandler),
+        (r"/(.*?)", ProfileHandler),
         (r"/user", "user.UserHomeHandler"),
         (r"/avatar/(.*)", AvatarHandler),
         (r"/user/upload", "user.UploadImageHandler"),
