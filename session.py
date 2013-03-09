@@ -45,8 +45,8 @@ class Session(object):
             self.handler.clear_cookie("session_id")
 
     def _generate_session_id(self):
-        "Generate a 128 bytes string"
-        session_id = "".join(uuid.uuid4().hex for i in xrange(4))
+        "Generate a 64 bytes string"
+        session_id = "".join(uuid.uuid4().hex for i in xrange(2))
         return session_id
 
     def cleanup(self, timeout):

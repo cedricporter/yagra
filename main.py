@@ -52,19 +52,19 @@ class EnvironHandler(MyBaseRequestHandler):
 
 
 class AvatarHandler(MyBaseRequestHandler):
-    def get(self, email_hash):
+    def get(self, email_md5):
         c = db.cursor()
-        c.execute("SELECT filename FROM yagra_user, yagra_image WHERE user_id = id AND user_email = %s", (email_hash, ))
-        row = c.fetchall()
+        c.execute("SELECT filename FROM yagra_image as img, yagra_user_head as head WHERE img.user_id = head.user_id AND user_email_md5 = %s",
+                  (email_md5, ))
+        row = c.fetchone()
         if row:
-            filename = row[-1][0]
-            logging.info(row)
+            filename = row[0]
+            logging.info("Avatar Filename: " + str(row))
             with open("uploads/" + filename, "rb") as f:
-                logging.info(f)
                 img = f.read()
                 length = len(img)
                 self.write(img)
-                logging.info("Length: %d" % length)
+                logging.info("Reading %s, Length: %d" % (str(f), length))
                 self.set_header("Content-Length", length)
 
             mime = mimetypes.types_map.get(os.path.splitext(filename)[-1], "image/jpeg")
