@@ -8,11 +8,12 @@ import main
 import StringIO
 import sys
 import os
+import re
 
 
 def is_in(target_string, *args):
     return reduce(lambda x, y: x and y,
-                  [s in target_string for s in args])
+                  [bool(re.search(p, target_string)) for p in args])
 
 
 def create_cgi_environ():
@@ -105,13 +106,17 @@ class Test(unittest.TestCase):
         with EnvSetup(self.output) as env:
             env["REQUEST_URI"] = "/accounts"
             main.main()
-            self.assertTrue("Location: /accounts/login" in env.getoutput())
+            self.assertTrue(is_in(env.getoutput(),
+                                  "Location: /accounts/login",
+                                  "Status: (2|3)"))
 
     def testUserWhenNotLogin(self):
         with EnvSetup(self.output) as env:
             env["REQUEST_URI"] = "/user"
             main.main()
-            self.assertTrue("Location: /accounts/login" in env.getoutput())
+            self.assertTrue(is_in(env.getoutput(),
+                                  "Location: /accounts/login",
+                                  "Status: (2|3)"))
 
     def testUserLogin(self):
         with EnvSetup(self.output) as env:
@@ -127,7 +132,7 @@ class Test(unittest.TestCase):
                 main.main()
 
             output = env.getoutput()
-            self.assertTrue(is_in(output, "Location: ", "Status: 302"))
+            self.assertTrue(is_in(output, "Location: ", "Status: (2|3)"))
 
 
 if __name__ == '__main__':
