@@ -3,15 +3,15 @@
 # Author: Hua Liang[Stupid ET] <et@everet.org>
 #
 
-import web
-import logging
-from db import db
-import time
 from base import RequestHandlerWithSession, authenticated
-import re
 from cgi import escape
+from db import db
 from util import hash_password
 from yagra_template import Template
+import logging
+import re
+import time
+import web
 
 
 NOT_USER_PATTERN = re.compile("[^a-zA-Z0-9]")
@@ -129,14 +129,16 @@ class LoginHandler(RequestHandlerWithSession):
             self.write(html_string)
 
     def post(self):
-        username = self.get_argument("username")
+        username_or_email = self.get_argument("username").lower()
         pwd = self.get_argument("password")
         password = hash_password(pwd)
 
         cursor = db.cursor()
-        cursor.execute("SELECT ID FROM yagra_user WHERE user_login = %s AND user_passwd = %s", (username, password))
+        cursor.execute("SELECT ID, user_login FROM yagra_user WHERE (user_login = %s OR user_email = %s) AND user_passwd = %s",
+                       (username_or_email, username_or_email, password))
         row = cursor.fetchone()
         if row:
+            ID, username = row
             logging.info(row)
             self.session["login"] = True
             self.session["username"] = username

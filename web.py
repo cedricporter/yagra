@@ -17,18 +17,12 @@ import urlparse
 import session
 import urllib
 
-from util import import_object
+from util import import_object, utf8
 
 
 cgi_fp = sys.stdin                        # for debug
 cgi_environ = os.environ
 
-
-def utf8(value):
-    if isinstance(value, (type(None), str)):
-        return value
-    assert isinstance(value, unicode)
-    return value.encode("utf-8")
 
 
 class StdStream(object):

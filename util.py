@@ -4,6 +4,17 @@
 #
 
 import hashlib
+import logging
+
+
+def utf8(value):
+    if isinstance(value, (type(None), str)):
+        return value
+    if not isinstance(value, unicode):
+        logging.info("utf8(): value is not unicode " + str(type(value)))
+
+    assert isinstance(value, unicode)
+    return value.encode("utf-8")
 
 
 def import_object(name):

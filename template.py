@@ -14,7 +14,7 @@
 """
 
 from string import Template
-from util import flatten
+from util import flatten, utf8
 
 
 def k(**kwargs):
@@ -27,12 +27,12 @@ def $tag(kwargs=dict(), *args):
     prefix = "<$tag "
     if isinstance(kwargs, dict):
         for k, v in kwargs.iteritems():
-            prefix += '%s="%s" ' % (k, str(v))
+            prefix += '%s="%s" ' % (utf8(k), utf8(str(v)))
     else:
         args = (kwargs, ) + args
     prefix += ">"
 
-    string = prefix + "".join(flatten(args)) + "</$tag>"
+    string = prefix + "".join(utf8(item) for item in flatten(args)) + "</$tag>"
 
     return string
 """)
