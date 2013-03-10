@@ -17,12 +17,19 @@ from string import Template
 from util import flatten
 
 
+def k(**kwargs):
+    return kwargs
+
+
 t = Template("""
-def $tag(*args, **kwargs):
+def $tag(kwargs=dict(), *args):
 
     prefix = "<$tag "
-    for k, v in kwargs.iteritems():
-        prefix += '%s="%s" ' % (k, str(v))
+    if isinstance(kwargs, dict):
+        for k, v in kwargs.iteritems():
+            prefix += '%s="%s" ' % (k, str(v))
+    else:
+        args = (kwargs, ) + args
     prefix += ">"
 
     string = prefix + "".join(flatten(args)) + "</$tag>"
@@ -33,7 +40,8 @@ def $tag(*args, **kwargs):
 for tag in ["html", "head", "body", "title",
             "script", "form", "input", "div",
             "img", "p", "strong", "br", "ul",
-            "li", "dd", "dt", "dl", "a",
+            "li", "dd", "dt", "dl", "a", "meta",
+            "link", "span", "label",
             ] + ["h%d" % i for i in xrange(6)]:
     func = t.substitute(tag=tag)
     exec(func)
@@ -44,7 +52,7 @@ def test():
         head(title("Lion"),
             ),
         body(h1("Welcome"),
-             [a("Link %d" % i, href="/") for i in xrange(10)],
+             [a(k(href="/"), "Link %d" % i) for i in xrange(10)],
             ))
 
     print string

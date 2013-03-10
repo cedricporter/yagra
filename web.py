@@ -295,6 +295,7 @@ class Application(object):
             self.add_handlers(handlers)
 
     def add_handlers(self, handlers):
+        "先加进去的会先处理"
         for spec in handlers:
             if isinstance(spec, type(())):
                 assert len(spec) == 2
@@ -335,6 +336,7 @@ class Application(object):
             if match:
                 handler = spec.handler_class(self, request)
                 args = [unicode(urllib.unquote_plus(utf8(m)), "utf-8") for m in match.groups()]
+                break
 
         if not handler:
             handler = ErrorHandler(self, request, status_code=404)

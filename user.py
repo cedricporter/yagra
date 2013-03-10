@@ -7,7 +7,7 @@ import web
 import logging
 from db import db
 from base import RequestHandlerWithSession, authenticated
-from template import *
+from yagra_template import Template
 import hashlib
 import time
 
@@ -20,24 +20,9 @@ class UserHomeHandler(RequestHandlerWithSession):
         c = db.cursor()
         c.execute("SELECT filename, upload_date FROM yagra_image, yagra_user WHERE user_login = %s AND user_id = ID", (username, ))
 
-        html_string = html(
-            head(
-                title("Yagra")),
-            body(
-                "username: " + username,
-                form(input(type="text", name="username"),
-                     input(type="file", name="user_head"),
-                     input(type="submit"),
-                     action="/user/upload",
-                     method="post",
-                     enctype="multipart/form-data"),
-                a("login", href="/accounts/login"),
-                a("logout", href="/accounts/logout"),
-                [[div(p(upload_date.ctime())),
-                  img(src="/uploads/" + filename, width="100", height="100")]
-                  for filename, upload_date in c.fetchall()],
-                ))
-
+        html_string = Template.render("userhome",
+                                      username,
+                                      imgs=c.fetchall())
         self.write(html_string)
 
 

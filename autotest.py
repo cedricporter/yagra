@@ -49,6 +49,7 @@ def create_cgi_environ():
 
 
 class EnvSetup(object):
+    "为CGI脚本设置环境变量，以及将标准输出替换成自己的以获取输出"
     def __init__(self, output=True):
         self.output = output
 
@@ -87,6 +88,7 @@ class EnvSetup(object):
 
 
 class WriteStdin:
+    "替换cgi的输入流"
     def __init__(self, data):
         self._data = data
 
@@ -120,16 +122,18 @@ class Test(unittest.TestCase):
                        "Status: (2|3)")
 
     def testUserWhenNotLogin(self):
+        "测试未登录时访问用户家目录/user"
         with EnvSetup(self.output) as env:
             env["REQUEST_URI"] = "/user"
             main.main()
-            self.is_in(env.getoutput(),
-                       "Location: /accounts/login",
-                       "Status: (2|3)",
-                       "Set-Cookie: session_id=;")
+            self.is_in(env.getoutput(), "Location: /accounts/login")
+            self.is_in(env.getoutput(), "Status: (2|3)")
+            self.is_in(env.getoutput(), "Set-Cookie: session_id=;")
 
     def testUserLogin(self):
-        with EnvSetup(self.output) as env:
+        "测试登陆"
+        # 注册用户a
+        with EnvSetup(output=False) as env:
             env["REQUEST_METHOD"] = "POST"
             env["REQUEST_URI"] = "/accounts/new"
             env["Content-Type"] = "application/x-www-form-urlencoded"
@@ -160,6 +164,7 @@ class Test(unittest.TestCase):
                        "Set-Cookie: session_id=[a-z0-9]")
 
     def testSignup(self, username=None):
+        "测试注册"
         with EnvSetup(self.output) as env:
             env["REQUEST_METHOD"] = "POST"
             env["REQUEST_URI"] = "/accounts/new"
@@ -177,6 +182,55 @@ class Test(unittest.TestCase):
             self.is_in(output,
                        "registered success!",
                        "Status: 200")
+
+    def testSignupWithNonValidUsername(self):
+        "不合法用户名注册测试"
+
+        non_valid_username = ("rose!", "Steve John",
+                              "a+1", ".ss", "hua.liang"
+                              )
+        for username in non_valid_username:
+            # 非法用户名
+            with EnvSetup(self.output) as env:
+                env["REQUEST_METHOD"] = "POST"
+                env["REQUEST_URI"] = "/accounts/new"
+                env["Content-Type"] = "application/x-www-form-urlencoded"
+
+                email = "rose@gmail.com"
+                body = "username=%s&email=%s&password=asdf&password-again=asdf" % (username, email)
+                env["Content-Length"] = str(len(body))
+
+                with WriteStdin(body):
+                    main.main()
+
+                output = env.getoutput()
+                self.is_in(output,
+                           "not valid",
+                           "Status: [^23]")
+
+    def testSignupWithNonValidEmail(self):
+        "不合法邮箱注册测试"
+
+        non_valid_email = ("a", "a@asdf..com", "xx@aaa", "helo!@dfdfa.com",
+                           "http://EverET.org", "1 + 1", "asdf+qwe@a.com",
+                           "hello@.com", "sdfsdf.com.cn")
+        for email in non_valid_email:
+            # 非法用户名
+            with EnvSetup(self.output) as env:
+                env["REQUEST_METHOD"] = "POST"
+                env["REQUEST_URI"] = "/accounts/new"
+                env["Content-Type"] = "application/x-www-form-urlencoded"
+
+                username = "Jack"
+                body = "username=%s&email=%s&password=asdf&password-again=asdf" % (username, email)
+                env["Content-Length"] = str(len(body))
+
+                with WriteStdin(body):
+                    main.main()
+
+                output = env.getoutput()
+                self.is_in(output, "not valid")
+                self.is_in(output, "Status: [^23]")
 
 
 if __name__ == '__main__':

@@ -10,8 +10,8 @@ import web
 import logging
 from db import db
 from base import MyBaseRequestHandler, RequestHandlerWithSession, authenticated
-from template import *
 import mimetypes
+from yagra_template import Template
 import os
 
 
@@ -20,7 +20,8 @@ logging.getLogger().setLevel(logging.INFO)
 
 class MainHandler(MyBaseRequestHandler):
     def get(self):
-        self.write("xxx" * 100)
+        html_string = Template.render("basic_frame", "Welcome to yagra", "Login")
+        self.write(html_string)
 
 
 class ImageWallHandler(MyBaseRequestHandler):
@@ -29,11 +30,7 @@ class ImageWallHandler(MyBaseRequestHandler):
         c = db.cursor()
         c.execute("SELECT filename, upload_date FROM yagra_image")
 
-        html_string = html(
-            [[div(p(upload_date.ctime())),
-              img(src="/uploads/" + filename)]
-              for filename, upload_date in c.fetchall()])
-
+        html_string = Template.render("imagewall", c.fetchall())
         self.write(html_string)
 
 
@@ -49,11 +46,12 @@ class ProfileHandler(MyBaseRequestHandler):
         FROM yagra_user as u, yagra_user_head as h
         WHERE u.ID = h.user_id  AND user_login = %s""", (username, ))
         row = c.fetchone()
+        logging.info("ProfileHandler username: " + username + " " + str(row))
         if row:
             email, email_md5 = row
-            html_string = html(
-                body(email,
-                     img(src="/avatar/" + email_md5, width="400", height="400")))
+            html_string = Template.render("profile",
+                                          email,
+                                          "/avatar/" + email_md5)
             self.write(html_string)
         else:
             self.redirect("/")
@@ -88,7 +86,6 @@ class AvatarHandler(MyBaseRequestHandler):
 def main():
     app = web.Application([
         (r"/", MainHandler),
-        (r"/(.+)", ProfileHandler),
         (r"/user", "user.UserHomeHandler"),
         (r"/avatar/(.+)", AvatarHandler),
         (r"/user/upload", "user.UploadImageHandler"),
@@ -98,6 +95,7 @@ def main():
         (r"/accounts/login", "accounts.LoginHandler"),
         (r"/accounts/logout", "accounts.LogoutHandler"),
         (r"/imagewall", ImageWallHandler),
+        (r"/(.+)", ProfileHandler),
     ])
     app.cgi_run()
 
