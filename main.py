@@ -6,21 +6,25 @@
 import cgitb
 cgitb.enable()
 
-import web
-import logging
-from db import db
 from base import MyBaseRequestHandler, RequestHandlerWithSession, authenticated
-import mimetypes
+from db import db
 from yagra_template import Template
+import logging
+import mimetypes
 import os
+import web
 
 
 logging.getLogger().setLevel(logging.INFO)
 
 
-class MainHandler(MyBaseRequestHandler):
+class MainHandler(RequestHandlerWithSession):
     def get(self):
-        html_string = Template.render("basic_frame", "Welcome to yagra", "Login")
+        if self.session.get("login"):
+            html_string = Template.render("homepage", button_name="我的账户", button_url="/user")
+        else:
+            html_string = Template.render("homepage", button_name="登录", button_url="/accounts/login")
+
         self.write(html_string)
 
 

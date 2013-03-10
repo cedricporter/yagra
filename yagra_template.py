@@ -18,7 +18,8 @@ class Template(object):
         return template_gen(*args, **kwargs)
 
     @staticmethod
-    def basic_frame(body_html, button_name="", title_name="Yagra"):
+    def basic_frame(body_html, button_name="", button_url="", title_name="Yagra"):
+        "网站基本框架"
         return html(
             head(title(title_name),
                  link(k(rel="stylesheet", type="text/css", href="/style.css"))),
@@ -29,7 +30,7 @@ class Template(object):
                         div(k(Class="middle"),
                             div(k(id="login"),
                                 div(k(id="loginContainer"),
-                                    a(k(id="login-trigger", Class="my-account-trigger"),
+                                    a(k(id="login-trigger", Class="my-account-trigger", href=button_url),
                                       span(button_name)),
                                       )))),
                     # main
@@ -42,7 +43,16 @@ class Template(object):
                                     )))))))
 
     @staticmethod
+    def homepage(button_name, button_url):
+        body_html = "欢迎"
+        html_string = Template.basic_frame(body_html,
+                                           button_name=button_name,
+                                           button_url=button_url)
+        return html_string
+
+    @staticmethod
     def signup():
+        "注册页面"
         body_html = flatten((h2("注册新用户"), p(),
                              form(k(id="create-account-form", action="/accounts/new", method="post"),
                                   # username
@@ -69,15 +79,21 @@ class Template(object):
 
     @staticmethod
     def login():
-        form_string = form(k(action="/accounts/login", method="post"),
-                           input(k(type="text", name="username")),
-                           input(k(type="password", name="password")),
-                           input(k(type="submit")))
+        "登陆页面"
+        form_string = form(k(id="create-account-form", action="/accounts/login", method="post"),
+                           h2("登录Yagra"), p(),
+                           p(label("用户名或者邮箱"),
+                             input(k(type="text", name="username", Class="text")),
+                           p(label("密码"),
+                             input(k(type="password", name="password", Class="text"))),
+                           p(k(Class="label_align"),
+                             input(k(name="commit", type="submit", value="登录", Class="button", id="submit")))))
         html_string = Template.basic_frame(form_string)
         return html_string
 
     @staticmethod
     def imagewall(imgs):
+        "照片墙"
         html_string = html(
             [[div(p(upload_date.ctime())),
               img(k(src="/uploads/" + filename))]
@@ -86,12 +102,14 @@ class Template(object):
 
     @staticmethod
     def profile(email, img_src):
+        "用户个人公共主页"
         body_html = img(k(src=img_src, width="400", height="400"))
         html_string = Template.basic_frame(body_html, "")
         return html_string
 
     @staticmethod
     def userhome(username, imgs):
+        "用户配置页面"
         body_html = "".join(
             flatten(("username: " + username,
                      form(k(action="/user/upload", method="post", enctype="multipart/form-data"),
@@ -103,11 +121,12 @@ class Template(object):
                           [[div(p(upload_date.ctime())),
                             img(k(src="/uploads/" + filename, width="100", height="100"))]
                             for filename, upload_date in imgs])))
-        html_string = Template.basic_frame(body_html, username)
+        html_string = Template.basic_frame(body_html, button_name="退出", button_url="/accounts/logout")
         return html_string
 
     @staticmethod
     def error(msg):
+        "错误页面"
         return html(
             head(title("错误")),
             body(
