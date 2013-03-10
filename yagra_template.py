@@ -43,26 +43,27 @@ class Template(object):
 
     @staticmethod
     def signup():
-        body_html = form(k(id="create-account-form", action="/accounts/new", method="post"),
-                         # username
-                         p(label("用户名："),
-                           input(k(type="text", id="setusername", name="username", Class="text")),
-                           input(k(type="button", Class="button", id="checkbutton", value="检查")),
-                           span(k(id="username-status", style="display: none", Class="sayno"),
-                                br(), "无效用户名")),
-                         p(k(Class="label_align"),
-                           "用户名将是您的永久身份象征。"),
-                         # email
-                         p(label("邮箱"),
-                           input(k(type="text", name="email", id="email", Class="text"))),
-                         # Password
-                         p(label("密码"),
-                           input(k(type="password", name="password", id="pass1", Class="text"))),
-                         p(label("再次输入密码"),
-                           input(k(type="password", name="password-again", id="pass2", Class="text"))),
-                         # submit
-                         p(k(Class="label_align"),
-                           input(k(name="commit", type="submit", value="注册", Class="button", id="submit"))))
+        body_html = flatten((h2("注册新用户"), p(),
+                             form(k(id="create-account-form", action="/accounts/new", method="post"),
+                                  # username
+                                  p(label("用户名："),
+                                    input(k(type="text", id="setusername", name="username", Class="text")),
+                                    input(k(type="button", Class="button", id="checkbutton", value="检查")),
+                                    span(k(id="username-status", style="display: none", Class="sayno"),
+                                         br(), "无效用户名")),
+                                  p(k(Class="label_align"),
+                                    "用户名将是您的永久身份象征。"),
+                                  # email
+                                  p(label("邮箱"),
+                                    input(k(type="text", name="email", id="email", Class="text"))),
+                                  # Password
+                                  p(label("密码"),
+                                    input(k(type="password", name="password", id="pass1", Class="text"))),
+                                  p(label("再次输入密码"),
+                                    input(k(type="password", name="password-again", id="pass2", Class="text"))),
+                                  # submit
+                                  p(k(Class="label_align"),
+                                    input(k(name="commit", type="submit", value="注册", Class="button", id="submit"))))))
         html_string = Template.basic_frame(body_html)
         return html_string
 
