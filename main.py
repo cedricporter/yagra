@@ -74,18 +74,20 @@ class AvatarHandler(MyBaseRequestHandler):
         row = c.fetchone()
         if row:
             filename = row[0]
+            full_filename = "uploads/" + filename
             logging.info("Avatar Filename: " + str(row))
-            with open("uploads/" + filename, "rb") as f:
-                img = f.read()
-                length = len(img)
-                self.write(img)
-                logging.info("Reading %s, Length: %d" % (str(f), length))
-                self.set_header("Content-Length", length)
-
-            mime = mimetypes.types_map.get(os.path.splitext(filename)[-1], "image/jpeg")
-            self.set_header("Content-Type", mime)
         else:
-            self.set_status(404)
+            full_filename = "static/default.jpg"
+
+        with open(full_filename, "rb") as f:
+            img = f.read()
+            length = len(img)
+            self.write(img)
+            logging.info("Reading %s, Length: %d" % (str(f), length))
+            self.set_header("Content-Length", length)
+
+        mime = mimetypes.types_map.get(os.path.splitext(full_filename)[-1], "image/jpeg")
+        self.set_header("Content-Type", mime)
 
 
 class AjaxValidateHandler(MyBaseRequestHandler):
@@ -150,6 +152,7 @@ def main():
         (r"/accounts/logout", "accounts.LogoutHandler"),
         (r"/imagewall", ImageWallHandler),
         (r"/ajax-validate", AjaxValidateHandler),
+        (r"/user/set-avatar/(.*)", "user.SetAvatarHandler"),
         (r"/(.+)", ProfileHandler),
     ])
     app.cgi_run()

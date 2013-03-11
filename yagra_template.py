@@ -115,11 +115,12 @@ class Template(object):
         return html_string
 
     @staticmethod
-    def userhome(username, imgs):
+    def userhome(username, email_md5, imgs):
         "用户配置页面"
         body_html = utf8_join_flatten(
             (h1(u"管理Yagra头像"),
              "username: " + username,
+             img(k(src="/avatar/" + email_md5, width="300", height="300")),
              # 上传表单
              form(k(action="/user/upload", method="post", enctype="multipart/form-data"),
                   input(k(type="text", name="username")),
@@ -133,9 +134,9 @@ class Template(object):
              h3("点选下方图片应用图片，或", a(k(href="/"), "新增图片")),
              div(k(id="gravatar_list"),
                  div(k(Class="gravatars"),
-                     [div(k(Class="grav"), div(k(Class="gravatar " + ("selected" if is_head else "")),
+                     [div(k(Class="grav"), div(k(id="img-id-" + str(image_id), Class="gravatar " + ("selected" if is_head else "")),
                                                img(k(src="/uploads/" + filename, title=upload_date.ctime(), alt=upload_date.ctime(), width="100", height="100"))))
-                                               for filename, upload_date, is_head in imgs]))))
+                                               for filename, image_id, upload_date, is_head in imgs]))))
 
         heads = script(k(src="/user.js"))
         html_string = Template.basic_frame(body_html, button_name="退出", button_url="/accounts/logout", heads=heads)

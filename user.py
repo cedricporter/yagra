@@ -13,18 +13,19 @@ import time
 
 
 class UserHomeHandler(RequestHandlerWithSession):
+    "用户管理页面"
     @authenticated
     def get(self):
         username = self.session["username"]
+        email_md5 = self.session["email_md5"]
 
         c = db.cursor()
-        c.execute("SELECT filename, upload_date FROM yagra_image, yagra_user WHERE user_login = %s AND user_id = ID", (username, ))
-        c.execute("""
+        c.execute(""" -- find head images of a user, and set 1 if it is current user head
         select
-            img2.filename, img2.upload_date, img2.image_id = img.iid
+            img2.filename, img2.image_id, img2.upload_date, img2.image_id = img.iid
         from
             (select -- find user head
-                h.image_id as iid
+                h.image_id as iid, user_email_md5
             from
                 yagra_user_head as h, yagra_image as i, yagra_user
             where
@@ -37,6 +38,7 @@ class UserHomeHandler(RequestHandlerWithSession):
 
         html_string = Template.render("userhome",
                                       username,
+                                      email_md5,
                                       imgs=c.fetchall())
         self.write(html_string)
 
@@ -49,6 +51,7 @@ def create_random_filename(filename):
 
 
 class UploadImageHandler(RequestHandlerWithSession):
+    "用户上传头像"
     @authenticated
     def post(self):
         username = self.session["username"]
@@ -92,3 +95,9 @@ class UploadImageHandler(RequestHandlerWithSession):
         self.write(str(self.request.files["user_head"].type))
 
         self.redirect("/user")
+
+
+class SetAvatarHandler(RequestHandlerWithSession):
+    "选择头像"
+    def get(self):
+        pass
