@@ -44,7 +44,8 @@ class Template(object):
 
     @staticmethod
     def homepage(button_name, button_url):
-        body_html = "欢迎"
+        body_html = flatten((h1("欢迎来到Yagra"),
+                             a(k(href="/accounts/signup"), "注册")))
         html_string = Template.basic_frame(body_html,
                                            button_name=button_name,
                                            button_url=button_url)
@@ -53,7 +54,7 @@ class Template(object):
     @staticmethod
     def signup():
         "注册页面"
-        body_html = flatten((h2("注册新用户"), p(),
+        body_html = flatten((h2("注册新用户"),
                              form(k(id="create-account-form", action="/accounts/new", method="post"),
                                   # username
                                   p(label("用户名："),
@@ -81,7 +82,7 @@ class Template(object):
     def login():
         "登陆页面"
         form_string = form(k(id="create-account-form", action="/accounts/login", method="post"),
-                           h2("登录Yagra"), p(),
+                           h2("登录Yagra"),
                            p(label("用户名或者邮箱"),
                              input(k(type="text", name="username", Class="text")),
                            p(label("密码"),
