@@ -170,7 +170,7 @@ class Test(unittest.TestCase):
             env["REQUEST_URI"] = "/accounts/new"
             env["Content-Type"] = "application/x-www-form-urlencoded"
 
-            username = "".join(random.choice(string.letters + string.digits) for i in xrange(16))
+            username = "".join(random.choice(string.lowercase + string.digits) for i in xrange(16))
             email = username + "@gmail.com"
             body = "username=%s&email=%s&password=asdf&password-again=asdf" % (username, email)
             env["Content-Length"] = str(len(body))
