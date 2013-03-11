@@ -6,16 +6,12 @@
 from base import RequestHandlerWithSession, authenticated
 from cgi import escape
 from db import db
-from util import hash_password
+from util import hash_password, yagra_check_username_valid, yagra_check_email_valid
 from yagra_template import Template
 import logging
 import re
 import time
 import web
-
-
-NOT_USER_PATTERN = re.compile("[^a-zA-Z0-9]")
-EMAIL_PATTERN = r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-])*\.[a-zA-Z]{2,4}$"
 
 
 class RegisterHandler(web.RequestHandler):
@@ -27,14 +23,14 @@ class RegisterHandler(web.RequestHandler):
 class NewAccountHandler(web.RequestHandler):
     def assure_input_valid(self):
         """检查用户名、邮箱是否合法，返回小写的用户名、邮箱以及密码
-
+p
         return None or (username_lower, pwd, email_lower)
         """
         self.set_status(403)
 
         # 检查用户名
         username = self.get_argument("username")
-        if NOT_USER_PATTERN.search(username):
+        if not yagra_check_username_valid(username):
             html_string = Template.render("error",
                                           "username %s is not valid" % (escape(username), ))
             self.write(html_string)
@@ -52,7 +48,7 @@ class NewAccountHandler(web.RequestHandler):
             return                        # XXX
 
         # 检查email
-        if not re.match(EMAIL_PATTERN, email):
+        if not yagra_check_email_valid(email):
             html_string = Template.render("error",
                                           "email: %s is not valid." % escape(email))
             self.write(html_string)

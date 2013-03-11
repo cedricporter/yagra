@@ -18,11 +18,14 @@ class Template(object):
         return template_gen(*args, **kwargs)
 
     @staticmethod
-    def basic_frame(body_html, button_name="", button_url="", title_name="Yagra"):
+    def basic_frame(body_html, button_name="", button_url="",
+                    title_name="Yagra", heads=""):
         "网站基本框架"
         return html(
             head(title(title_name),
-                 link(k(rel="stylesheet", type="text/css", href="/style.css"))),
+                 link(k(rel="stylesheet", type="text/css", href="/style.css")),
+                 script(k(src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js")),
+                 heads),
             body(
                 div(k(id="wrap"),
                     # header
@@ -44,7 +47,8 @@ class Template(object):
 
     @staticmethod
     def homepage(button_name, button_url):
-        body_html = "欢迎"
+        body_html = flatten((h1("欢迎来到Yagra"),
+                             a(k(href="/accounts/signup"), "注册")))
         html_string = Template.basic_frame(body_html,
                                            button_name=button_name,
                                            button_url=button_url)
@@ -53,35 +57,37 @@ class Template(object):
     @staticmethod
     def signup():
         "注册页面"
-        body_html = flatten((h2("注册新用户"), p(),
+        body_html = flatten((h2("注册新用户"),
                              form(k(id="create-account-form", action="/accounts/new", method="post"),
                                   # username
                                   p(label("用户名："),
                                     input(k(type="text", id="setusername", name="username", Class="text")),
                                     input(k(type="button", Class="button", id="checkbutton", value="检查")),
-                                    span(k(id="username-status", style="display: none", Class="sayno"),
-                                         br(), "无效用户名")),
+                                    span(k(id="username-status", style="display: none"))),
                                   p(k(Class="label_align"),
                                     "用户名将是您的永久身份象征。"),
                                   # email
                                   p(label("邮箱"),
-                                    input(k(type="text", name="email", id="email", Class="text"))),
+                                    input(k(type="text", name="email", id="email", Class="text")),
+                                    span(k(id="email-status", style="display: none"))),
                                   # Password
                                   p(label("密码"),
                                     input(k(type="password", name="password", id="pass1", Class="text"))),
                                   p(label("再次输入密码"),
-                                    input(k(type="password", name="password-again", id="pass2", Class="text"))),
+                                    input(k(type="password", name="password-again", id="pass2", Class="text")),
+                                    span(k(id="password-status", style="display: none"))),
                                   # submit
                                   p(k(Class="label_align"),
                                     input(k(name="commit", type="submit", value="注册", Class="button", id="submit"))))))
-        html_string = Template.basic_frame(body_html)
+        heads = script(k(src="/signup.js"))
+        html_string = Template.basic_frame(body_html, heads=heads)
         return html_string
 
     @staticmethod
     def login():
         "登陆页面"
         form_string = form(k(id="create-account-form", action="/accounts/login", method="post"),
-                           h2("登录Yagra"), p(),
+                           h2("登录Yagra"),
                            p(label("用户名或者邮箱"),
                              input(k(type="text", name="username", Class="text")),
                            p(label("密码"),
