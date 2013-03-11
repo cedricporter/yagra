@@ -10,6 +10,7 @@ from base import RequestHandlerWithSession, authenticated
 from yagra_template import Template
 import hashlib
 import time
+from util import purge_filename
 
 
 class UserHomeHandler(RequestHandlerWithSession):
@@ -42,6 +43,8 @@ class UserHomeHandler(RequestHandlerWithSession):
 def create_random_filename(filename):
     import random
     import string
+
+    filename = purge_filename(filename)
 
     return time.strftime("%Y_%m_%d_%H_%M_%S_") + "".join(random.choice(string.letters) for i in xrange(10)) + filename
 
