@@ -17,7 +17,7 @@ import urlparse
 import session
 import urllib
 
-from util import import_object, utf8
+from util import import_object, utf8, json_encode
 
 
 cgi_fp = sys.stdin                        # for debug
@@ -217,6 +217,9 @@ class RequestHandler(object):
                                                      url))
 
     def write(self, chunk):
+        if isinstance(chunk, dict):
+            chunk = json_encode(chunk)
+            self.set_header("Content-Type", "application/json; charset=UTF-8")
         chunk = utf8(chunk)
         self._write_buffer.append(chunk)
 

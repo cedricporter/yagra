@@ -5,6 +5,11 @@
 
 import hashlib
 import logging
+import json
+
+
+def json_encode(value):
+    return json.dumps(value).replace("</", "<\\/")
 
 
 def utf8(value):

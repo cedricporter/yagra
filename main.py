@@ -87,6 +87,31 @@ class AvatarHandler(MyBaseRequestHandler):
             self.set_status(404)
 
 
+class AjaxValidateHandler(MyBaseRequestHandler):
+    def post(self):
+        action = self.get_argument("action")
+
+        if action == "check_username":
+            self.check_username()
+
+    def check_username(self):
+        "检查用户名是否合法"
+        username = self.get_argument("username")
+
+        import time
+        time.sleep(1)
+
+        c = db.cursor()
+        c.execute("SELECT ID FROM yagra_user WHERE user_login = %s", (username, ))
+        row = c.fetchone()
+        if row:
+            self.write({"status": "Failed",
+                        "msg": "用户已经存在"})
+        else:
+            self.write({"status": "OK",
+                        "msg": "用户名合法！"})
+
+
 def main():
     app = web.Application([
         (r"/", MainHandler),
@@ -99,6 +124,7 @@ def main():
         (r"/accounts/login", "accounts.LoginHandler"),
         (r"/accounts/logout", "accounts.LogoutHandler"),
         (r"/imagewall", ImageWallHandler),
+        (r"/ajax-validate", AjaxValidateHandler),
         (r"/(.+)", ProfileHandler),
     ])
     app.cgi_run()

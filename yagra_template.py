@@ -18,11 +18,14 @@ class Template(object):
         return template_gen(*args, **kwargs)
 
     @staticmethod
-    def basic_frame(body_html, button_name="", button_url="", title_name="Yagra"):
+    def basic_frame(body_html, button_name="", button_url="",
+                    title_name="Yagra", heads=""):
         "网站基本框架"
         return html(
             head(title(title_name),
-                 link(k(rel="stylesheet", type="text/css", href="/style.css"))),
+                 link(k(rel="stylesheet", type="text/css", href="/style.css")),
+                 script(k(src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js")),
+                 heads),
             body(
                 div(k(id="wrap"),
                     # header
@@ -60,8 +63,7 @@ class Template(object):
                                   p(label("用户名："),
                                     input(k(type="text", id="setusername", name="username", Class="text")),
                                     input(k(type="button", Class="button", id="checkbutton", value="检查")),
-                                    span(k(id="username-status", style="display: none", Class="sayno"),
-                                         br(), "无效用户名")),
+                                    span(k(id="username-status", style="display: none"))),
                                   p(k(Class="label_align"),
                                     "用户名将是您的永久身份象征。"),
                                   # email
@@ -75,7 +77,8 @@ class Template(object):
                                   # submit
                                   p(k(Class="label_align"),
                                     input(k(name="commit", type="submit", value="注册", Class="button", id="submit"))))))
-        html_string = Template.basic_frame(body_html)
+        heads = script(k(src="/signup.js"))
+        html_string = Template.basic_frame(body_html, heads=heads)
         return html_string
 
     @staticmethod
