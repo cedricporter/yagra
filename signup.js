@@ -7,6 +7,16 @@ $(document).ready(function () {
     var username = $("#setusername");
     var username_status = $("#username-status");
 
+    // prevent input invalid character
+    username.bind('keypress', function (event) {
+	var regex = new RegExp("^[a-z0-9]+$");
+	var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+	if (!regex.test(key)) {
+	    event.preventDefault();
+	    return false;
+	}
+    });
+
     check_button.click(function () {
 	username_status.css("display", "inline").html("<br>检查中...");
 	$.ajax({

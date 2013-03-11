@@ -3,6 +3,10 @@
 # Author: Hua Liang[Stupid ET] <et@everet.org>
 #
 
+"""
+这个是针对Yagra的CGI自动测试。所有的测试通过设置os.environ环境变量以及sys.stdin来模拟Web Server的输入。
+"""
+
 import unittest
 import main
 import StringIO
