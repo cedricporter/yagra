@@ -6,6 +6,21 @@
 import hashlib
 import logging
 import json
+import re
+
+
+NOT_USER_PATTERN = re.compile("[^a-z0-9]")
+EMAIL_PATTERN = re.compile(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-])*\.[a-zA-Z]{2,4}$")
+
+
+def yagra_check_email_valid(email):
+    "检查email字符结构是否合法"
+    return bool(EMAIL_PATTERN.match(email))
+
+
+def yagra_check_username_valid(username):
+    "检查用户名字符是否合法"
+    return not bool(NOT_USER_PATTERN.search(username))
 
 
 def json_encode(value):

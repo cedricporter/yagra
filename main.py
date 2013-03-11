@@ -9,6 +9,7 @@ cgitb.enable()
 from base import MyBaseRequestHandler, RequestHandlerWithSession, authenticated
 from db import db
 from yagra_template import Template
+from util import yagra_check_username_valid
 import logging
 import mimetypes
 import os
@@ -98,8 +99,10 @@ class AjaxValidateHandler(MyBaseRequestHandler):
         "检查用户名是否合法"
         username = self.get_argument("username")
 
-        import time
-        time.sleep(1)
+        if not yagra_check_username_valid(username):
+            self.write({"status": "Failed",
+                        "msg": "用户名包含不合法字符！请仅选用小写字母和数字。"})
+            return
 
         c = db.cursor()
         c.execute("SELECT ID FROM yagra_user WHERE user_login = %s", (username, ))
