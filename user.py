@@ -58,7 +58,7 @@ class UploadImageHandler(RequestHandlerWithSession):
 
         upload_filename = self.request.files["user_head"].filename
 
-        filename = create_random_filename(upload_filename)
+        filename = create_random_filename(username + "_" + upload_filename)
 
         full_filename = "uploads/" + filename
 
@@ -90,13 +90,29 @@ class UploadImageHandler(RequestHandlerWithSession):
                                (user_id, image_id, email_md5))
             db.commit()
 
-        self.set_header("Content-Type", "text/plain")
-        self.write(str(self.request.files["user_head"].type))
-
         self.redirect("/user")
 
 
 class SetAvatarHandler(RequestHandlerWithSession):
     "选择头像"
-    def get(self):
-        pass
+    @authenticated
+    def post(self):
+        username = self.session["username"]
+        user_id = self.session["id"]
+
+        new_image_id = self.get_argument("new_image_id")
+        # nonce = self.get_argument("nonce")   # 防止CSRF
+
+        c = db.cursor()
+        c.execute("SELECT * FROM yagra_user, yagra_image WHERE ID = user_id AND user_login = %s AND image_id = %s",
+                  (username, new_image_id))
+        row = c.fetchone()
+        if row:
+            c.execute("UPDATE yagra_user_head SET image_id = %s WHERE user_id = %s",
+                      (new_image_id, user_id))
+            # self.redirect("/user")
+            self.write({"status": "OK"})
+            return
+
+        self.write({"status": "Failed",
+                    "msg": "选择的图片不正确！"})

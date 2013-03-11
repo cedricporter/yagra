@@ -143,6 +143,7 @@ class LoginHandler(RequestHandlerWithSession):
 
             logging.info(row)
             self.session["login"] = True
+            self.session["id"] = ID
             self.session["username"] = username
             self.session["email"] = email
             self.session["email_md5"] = email_md5

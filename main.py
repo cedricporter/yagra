@@ -66,11 +66,12 @@ class AvatarHandler(MyBaseRequestHandler):
         c.execute("""
         SELECT filename
         FROM yagra_image as img, yagra_user_head as head
-        WHERE img.user_id = head.user_id AND user_email_md5 = %s""",
+        WHERE img.image_id = head.image_id AND user_email_md5 = %s""",
                   (email_md5, ))
         row = c.fetchone()
         if row:
             filename = row[0]
+            logging.info("Avatar Handler " + str(row) + " " + filename)
             full_filename = "uploads/" + filename
             logging.info("Avatar Filename: " + str(row))
         else:
@@ -139,7 +140,7 @@ class AjaxValidateHandler(MyBaseRequestHandler):
 def main():
     app = web.Application([
         (r"/", MainHandler),
-        (r"/user", "user.UserHomeHandler"),
+        (r"/user/?", "user.UserHomeHandler"),
         (r"/avatar/(.+)", AvatarHandler),
         (r"/user/upload", "user.UploadImageHandler"),
         (r"/accounts/?", "accounts.AccountHandler"),
@@ -149,7 +150,7 @@ def main():
         (r"/accounts/logout", "accounts.LogoutHandler"),
         (r"/imagewall", ImageWallHandler),
         (r"/ajax-validate", AjaxValidateHandler),
-        (r"/user/set-avatar/(.*)", "user.SetAvatarHandler"),
+        (r"/user/set_avatar", "user.SetAvatarHandler"),
         (r"/(.+)", ProfileHandler),
     ])
     app.cgi_run()
