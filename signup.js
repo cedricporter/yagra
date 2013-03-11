@@ -37,5 +37,19 @@ $(document).ready(function () {
 	});
     });
 
+    // password match
+    var pass1 = $("#pass1");
+    var pass2 = $("#pass2");
+    var pass_status = $("#password-status");
+
+    pass2.keyup(function () {
+	if (pass1.val() != pass2.val()) {
+	    pass_status.css("display", "inline").css("color", "red");
+	    pass_status.html("两次密码不匹配！");
+	}
+	else {
+	    pass_status.css("display", "none");
+	}
+    });
 
 });

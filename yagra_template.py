@@ -73,7 +73,8 @@ class Template(object):
                                   p(label("密码"),
                                     input(k(type="password", name="password", id="pass1", Class="text"))),
                                   p(label("再次输入密码"),
-                                    input(k(type="password", name="password-again", id="pass2", Class="text"))),
+                                    input(k(type="password", name="password-again", id="pass2", Class="text")),
+                                    span(k(id="password-status", style="display: none"))),
                                   # submit
                                   p(k(Class="label_align"),
                                     input(k(name="commit", type="submit", value="注册", Class="button", id="submit"))))))
