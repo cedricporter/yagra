@@ -101,7 +101,8 @@ p
               time.strftime('%Y-%m-%d %H:%M:%S'), str(1)))
         db.commit()
 
-        self.write("Username: %s registered success!" % escape(username))
+        # self.write("Username: %s registered success!" % escape(username))
+        self.redirect("/accounts/login")
 
 
 class AccountHandler(RequestHandlerWithSession):
