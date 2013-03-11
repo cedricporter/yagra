@@ -9,7 +9,7 @@ cgitb.enable()
 from base import MyBaseRequestHandler, RequestHandlerWithSession, authenticated
 from db import db
 from yagra_template import Template
-from util import yagra_check_username_valid
+from util import yagra_check_username_valid, yagra_check_email_valid
 import logging
 import mimetypes
 import os
@@ -94,6 +94,28 @@ class AjaxValidateHandler(MyBaseRequestHandler):
 
         if action == "check_username":
             self.check_username()
+        elif action == "check_email":
+            self.check_email()
+
+    def check_email(self):
+        email = self.get_argument("email").lower()
+
+        if not yagra_check_email_valid(email):
+            self.write({"status": "Failed",
+                        "msg": "邮箱格式不正确！"})
+            return
+
+        c = db.cursor()
+        c.execute("SELECT ID FROM yagra_user WHERE user_email = %s",
+                  (email, ))
+        row = c.fetchone()
+        if row:
+            self.write({"status": "Failed",
+                        "msg": "您输入的邮箱已经注册过了！"})
+            return
+
+        self.write({"status": "OK",
+                    "msg": "OK"})
 
     def check_username(self):
         "检查用户名是否合法"

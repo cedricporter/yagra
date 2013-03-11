@@ -52,4 +52,55 @@ $(document).ready(function () {
 	}
     });
 
+    var submit_btn = $("#submit");
+    submit_btn.click(function () {
+
+	var is_failed = false;
+	// username
+	$.ajax({
+	    url: '/ajax-validate',
+	    data: 'action=check_username&username=' + username.val(),
+	    dataType: 'json',
+	    type: 'post',
+	    async: false,
+	    success: function (j) {
+		username_status.removeClass("sayyes sayno");
+
+		if (j.status == "OK") {
+		    username_status.addClass("sayyes");
+		}
+		else {
+		    is_failed = true;
+		    username_status.css("display", "inline");
+		    username_status.addClass("sayno");
+		}
+		username_status.html("<br>" + j.msg);
+	    }
+	});
+
+	if (is_failed) return false;
+
+	// email
+	var email = $("#email");
+	var email_status = $("#email-status");
+	$.ajax({
+	    url: '/ajax-validate',
+	    data: 'action=check_email&email=' + email.val(),
+	    dataType: 'json',
+	    type: 'post',
+	    async: false,
+	    success: function (j) {
+		if (j.status != "OK") {
+		    email_status.css("display", "inline").html(j.msg);
+		    is_failed = true;
+		}
+	    }
+	});
+
+	if (is_failed) return false;
+
+	if (pass1.val() != pass2.val()) return false;
+
+	return true;
+    });
 });

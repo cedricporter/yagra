@@ -68,7 +68,8 @@ class Template(object):
                                     "用户名将是您的永久身份象征。"),
                                   # email
                                   p(label("邮箱"),
-                                    input(k(type="text", name="email", id="email", Class="text"))),
+                                    input(k(type="text", name="email", id="email", Class="text")),
+                                    span(k(id="email-status", style="display: none"))),
                                   # Password
                                   p(label("密码"),
                                     input(k(type="password", name="password", id="pass1", Class="text"))),
