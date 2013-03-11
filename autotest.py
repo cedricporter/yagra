@@ -184,8 +184,8 @@ class Test(unittest.TestCase):
 
             output = env.getoutput()
             self.is_in(output,
-                       "registered success!",
-                       "Status: 200")
+                       "Location: ",
+                       "Status: 3")
 
     def testSignupWithNonValidUsername(self):
         "不合法用户名注册测试"

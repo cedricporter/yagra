@@ -116,17 +116,21 @@ class Template(object):
     @staticmethod
     def userhome(username, imgs):
         "用户配置页面"
-        body_html = "".join(
-            flatten(("username: " + username,
-                     form(k(action="/user/upload", method="post", enctype="multipart/form-data"),
-                          input(k(type="text", name="username")),
-                          input(k(type="file", name="user_head")),
-                          input(k(type="submit"))),
-                          a(k(href="/accounts/login"), "login"),
-                          a(k(href="/accounts/logout"), "logout"),
-                          [[div(p(upload_date.ctime())),
-                            img(k(src="/uploads/" + filename, width="100", height="100"))]
-                            for filename, upload_date in imgs])))
+        body_html = utf8_join_flatten(
+            (h1(u"管理Yagra头像"),
+             "username: " + username,
+             form(k(action="/user/upload", method="post", enctype="multipart/form-data"),
+                  input(k(type="text", name="username")),
+                  input(k(type="file", name="user_head")),
+                  input(k(type="submit"))),
+             h2("功能"),
+             a(k(href="/accounts/login"), "login"),
+             a(k(href="/accounts/logout"), "logout"),
+             div(k(id="gravatar_list"),
+                 div(k(Class="gravatars"),
+                     [div(k(Class="grav"), div(k(Class="gravatar"),
+                                               img(k(src="/uploads/" + filename, title=upload_date.ctime(), alt=upload_date.ctime(), width="100", height="100"))))
+                                               for filename, upload_date in imgs]))))
         html_string = Template.basic_frame(body_html, button_name="退出", button_url="/accounts/logout")
         return html_string
 
