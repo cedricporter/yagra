@@ -19,6 +19,21 @@ class UserHomeHandler(RequestHandlerWithSession):
 
         c = db.cursor()
         c.execute("SELECT filename, upload_date FROM yagra_image, yagra_user WHERE user_login = %s AND user_id = ID", (username, ))
+        c.execute("""
+        select
+            img2.filename, img2.upload_date, img2.image_id = img.iid
+        from
+            (select -- find user head
+                h.image_id as iid
+            from
+                yagra_user_head as h, yagra_image as i, yagra_user
+            where
+                h.image_id = i.image_id and h.user_id = ID and user_login = %s) as img,
+            yagra_image as img2,
+            yagra_user as u
+        where
+            img2.user_id = u.ID and u.user_login = %s;
+        """, (username, username))
 
         html_string = Template.render("userhome",
                                       username,

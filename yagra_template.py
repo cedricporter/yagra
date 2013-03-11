@@ -130,12 +130,15 @@ class Template(object):
              a(k(href="/accounts/login"), "login"),
              a(k(href="/accounts/logout"), "logout"),
              # 用户头像列表
+             h3("点选下方图片应用图片，或", a(k(href="/"), "新增图片")),
              div(k(id="gravatar_list"),
                  div(k(Class="gravatars"),
-                     [div(k(Class="grav"), div(k(Class="gravatar"),
+                     [div(k(Class="grav"), div(k(Class="gravatar " + ("selected" if is_head else "")),
                                                img(k(src="/uploads/" + filename, title=upload_date.ctime(), alt=upload_date.ctime(), width="100", height="100"))))
-                                               for filename, upload_date in imgs]))))
-        html_string = Template.basic_frame(body_html, button_name="退出", button_url="/accounts/logout")
+                                               for filename, upload_date, is_head in imgs]))))
+
+        heads = script(k(src="/user.js"))
+        html_string = Template.basic_frame(body_html, button_name="退出", button_url="/accounts/logout", heads=heads)
         return html_string
 
     @staticmethod
