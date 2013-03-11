@@ -20,21 +20,17 @@ class UserHomeHandler(RequestHandlerWithSession):
         email_md5 = self.session["email_md5"]
 
         c = db.cursor()
-        c.execute(""" -- find head images of a user, and set 1 if it is current user head
-        select
-            img2.filename, img2.image_id, img2.upload_date, img2.image_id = img.iid
-        from
-            (select -- find user head
-                h.image_id as iid, user_email_md5
-            from
-                yagra_user_head as h, yagra_image as i, yagra_user
-            where
-                h.image_id = i.image_id and h.user_id = ID and user_login = %s) as img,
-            yagra_image as img2,
-            yagra_user as u
-        where
-            img2.user_id = u.ID and u.user_login = %s;
-        """, (username, username))
+        c.execute("""
+        SELECT
+            filename, i.image_id, i.upload_date, user_email_md5
+        FROM
+            yagra_user AS u,
+            yagra_image AS i
+                LEFT JOIN
+            yagra_user_head AS h ON i.image_id = h.image_id
+        WHERE
+            u.ID = i.user_id AND u.user_login = %s
+        """, (username, ))
 
         html_string = Template.render("userhome",
                                       username,

@@ -134,9 +134,9 @@ class Template(object):
              h3("点选下方图片应用图片，或", a(k(href="/"), "新增图片")),
              div(k(id="gravatar_list"),
                  div(k(Class="gravatars"),
-                     [div(k(Class="grav"), div(k(id="img-id-" + str(image_id), Class="gravatar " + ("selected" if is_head else "")),
+                     [div(k(Class="grav"), div(k(id="img-id-" + str(image_id), Class="gravatar " + ("selected" if email_md5 else "")),
                                                img(k(src="/uploads/" + filename, title=upload_date.ctime(), alt=upload_date.ctime(), width="100", height="100"))))
-                                               for filename, image_id, upload_date, is_head in imgs]))))
+                                               for filename, image_id, upload_date, email_md5 in imgs]))))
 
         heads = script(k(src="/user.js"))
         html_string = Template.basic_frame(body_html, button_name="退出", button_url="/accounts/logout", heads=heads)
