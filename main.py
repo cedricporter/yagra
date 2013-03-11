@@ -41,22 +41,19 @@ class ImageWallHandler(MyBaseRequestHandler):
 
 class ProfileHandler(MyBaseRequestHandler):
     def get(self, username):
-        if not username:
-            self.write("fuck")
-            return
 
         c = db.cursor()
         c.execute("""
         SELECT user_email, user_email_md5
-        FROM yagra_user as u, yagra_user_head as h
-        WHERE u.ID = h.user_id  AND user_login = %s""", (username, ))
+        FROM yagra_user LEFT JOIN yagra_user_head ON ID = user_id
+        WHERE user_login = %s""", (username, ))
         row = c.fetchone()
         logging.info("ProfileHandler username: " + username + " " + str(row))
         if row:
             email, email_md5 = row
             html_string = Template.render("profile",
                                           email,
-                                          "/avatar/" + email_md5)
+                                          "/avatar/" + str(email_md5))
             self.write(html_string)
         else:
             self.redirect("/")
@@ -69,23 +66,26 @@ class AvatarHandler(MyBaseRequestHandler):
         c.execute("""
         SELECT filename
         FROM yagra_image as img, yagra_user_head as head
-        WHERE img.user_id = head.user_id AND user_email_md5 = %s""",
+        WHERE img.image_id = head.image_id AND user_email_md5 = %s""",
                   (email_md5, ))
         row = c.fetchone()
         if row:
             filename = row[0]
+            logging.info("Avatar Handler " + str(row) + " " + filename)
+            full_filename = "uploads/" + filename
             logging.info("Avatar Filename: " + str(row))
-            with open("uploads/" + filename, "rb") as f:
-                img = f.read()
-                length = len(img)
-                self.write(img)
-                logging.info("Reading %s, Length: %d" % (str(f), length))
-                self.set_header("Content-Length", length)
-
-            mime = mimetypes.types_map.get(os.path.splitext(filename)[-1], "image/jpeg")
-            self.set_header("Content-Type", mime)
         else:
-            self.set_status(404)
+            full_filename = "static/default.jpg"
+
+        with open(full_filename, "rb") as f:
+            img = f.read()
+            length = len(img)
+            self.write(img)
+            logging.info("Reading %s, Length: %d" % (str(f), length))
+            self.set_header("Content-Length", length)
+
+        mime = mimetypes.types_map.get(os.path.splitext(full_filename)[-1], "image/jpeg")
+        self.set_header("Content-Type", mime)
 
 
 class AjaxValidateHandler(MyBaseRequestHandler):
@@ -140,7 +140,7 @@ class AjaxValidateHandler(MyBaseRequestHandler):
 def main():
     app = web.Application([
         (r"/", MainHandler),
-        (r"/user", "user.UserHomeHandler"),
+        (r"/user/?", "user.UserHomeHandler"),
         (r"/avatar/(.+)", AvatarHandler),
         (r"/user/upload", "user.UploadImageHandler"),
         (r"/accounts/?", "accounts.AccountHandler"),
@@ -150,6 +150,7 @@ def main():
         (r"/accounts/logout", "accounts.LogoutHandler"),
         (r"/imagewall", ImageWallHandler),
         (r"/ajax-validate", AjaxValidateHandler),
+        (r"/user/set_avatar", "user.SetAvatarHandler"),
         (r"/(.+)", ProfileHandler),
     ])
     app.cgi_run()

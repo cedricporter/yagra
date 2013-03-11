@@ -21,6 +21,10 @@ def k(**kwargs):
     return kwargs
 
 
+def utf8_join_flatten(items):
+    return "".join(utf8(item) for item in flatten(items))
+
+
 t = Template("""
 def $tag(kwargs=dict(), *args):
 
@@ -32,7 +36,7 @@ def $tag(kwargs=dict(), *args):
         args = (kwargs, ) + args
     prefix += ">"
 
-    string = prefix + "".join(utf8(item) for item in flatten(args)) + "</$tag>"
+    string = prefix + utf8_join_flatten(args) + "</$tag>"
 
     return string
 """)

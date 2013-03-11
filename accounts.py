@@ -12,6 +12,7 @@ import logging
 import re
 import time
 import web
+import hashlib
 
 
 class RegisterHandler(web.RequestHandler):
@@ -131,14 +132,21 @@ class LoginHandler(RequestHandlerWithSession):
         password = hash_password(pwd)
 
         cursor = db.cursor()
-        cursor.execute("SELECT ID, user_login FROM yagra_user WHERE (user_login = %s OR user_email = %s) AND user_passwd = %s",
+        cursor.execute("SELECT ID, user_login, user_email FROM yagra_user WHERE (user_login = %s OR user_email = %s) AND user_passwd = %s",
                        (username_or_email, username_or_email, password))
         row = cursor.fetchone()
         if row:
-            ID, username = row
+            ID, username, email = row
+            m = hashlib.md5()
+            m.update(email)
+            email_md5 = m.hexdigest()
+
             logging.info(row)
             self.session["login"] = True
+            self.session["id"] = ID
             self.session["username"] = username
+            self.session["email"] = email
+            self.session["email_md5"] = email_md5
             self.set_cookie("session_id", self.session.session_id)
             return self.redirect("/user")
         self.write("Error")

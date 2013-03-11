@@ -2,10 +2,10 @@
 
 $(document).ready(function () {
 
-    // check username
     var check_button = $("#checkbutton");
     var username = $("#setusername");
     var username_status = $("#username-status");
+    var email = $("#email");
 
     // prevent input invalid character
     username.bind('keypress', function (event) {
@@ -17,7 +17,25 @@ $(document).ready(function () {
 	}
     });
 
+
+    // prevent input invalid character
+    email.bind('keypress', function (event) {
+	var regex = new RegExp("^[a-zA-Z0-9-_.@]+$");
+	var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+	if (!regex.test(key)) {
+	    event.preventDefault();
+	    return false;
+	}
+    });
+
+
+    // check username
     check_button.click(function () {
+	if (username.val() == "") {
+	    username_status.css("display", "inline").addClass("sayno").html("<br>用户名不能为空！");
+	    return;
+	}
+
 	username_status.css("display", "inline").html("<br>检查中...");
 	$.ajax({
 	    url: '/ajax-validate',
@@ -81,7 +99,6 @@ $(document).ready(function () {
 	if (is_failed) return false;
 
 	// email
-	var email = $("#email");
 	var email_status = $("#email-status");
 	$.ajax({
 	    url: '/ajax-validate',
@@ -91,7 +108,7 @@ $(document).ready(function () {
 	    async: false,
 	    success: function (j) {
 		if (j.status != "OK") {
-		    email_status.css("display", "inline").html(j.msg);
+		    email_status.css("display", "inline").css("color", "red").html(j.msg);
 		    is_failed = true;
 		}
 	    }

@@ -57,7 +57,8 @@ class Template(object):
     @staticmethod
     def signup():
         "注册页面"
-        body_html = flatten((h2("注册新用户"),
+        body_html = flatten((h2("创建用户！开始您的旅程！"),
+                             p("选择您的用户名，记得仅仅只能包含小些字母和数字哦！"),
                              form(k(id="create-account-form", action="/accounts/new", method="post"),
                                   # username
                                   p(label("用户名："),
@@ -114,20 +115,31 @@ class Template(object):
         return html_string
 
     @staticmethod
-    def userhome(username, imgs):
+    def userhome(username, email_md5, imgs):
         "用户配置页面"
-        body_html = "".join(
-            flatten(("username: " + username,
-                     form(k(action="/user/upload", method="post", enctype="multipart/form-data"),
-                          input(k(type="text", name="username")),
-                          input(k(type="file", name="user_head")),
-                          input(k(type="submit"))),
-                          a(k(href="/accounts/login"), "login"),
-                          a(k(href="/accounts/logout"), "logout"),
-                          [[div(p(upload_date.ctime())),
-                            img(k(src="/uploads/" + filename, width="100", height="100"))]
-                            for filename, upload_date in imgs])))
-        html_string = Template.basic_frame(body_html, button_name="退出", button_url="/accounts/logout")
+        body_html = utf8_join_flatten(
+            (h1(u"管理Yagra头像"),
+             "username: " + username,
+             img(k(src="/avatar/" + email_md5, width="300", height="300")),
+             # 上传表单
+             form(k(action="/user/upload", method="post", enctype="multipart/form-data"),
+                  input(k(type="text", name="username")),
+                  input(k(type="file", name="user_head")),
+                  input(k(type="submit"))),
+             # 其他
+             h2("功能"),
+             a(k(href="/accounts/login"), "login"),
+             a(k(href="/accounts/logout"), "logout"),
+             # 用户头像列表
+             h3("点选下方图片应用图片，或", a(k(href="/"), "新增图片")),
+             div(k(id="gravatar_list"),
+                 div(k(Class="gravatars"),
+                     [div(k(Class="grav"), div(k(id="img-id-" + str(image_id), Class="gravatar " + ("selected" if email_md5 else "")),
+                                               img(k(src="/uploads/" + filename, title=upload_date.ctime(), alt=upload_date.ctime(), width="100", height="100"))))
+                                               for filename, image_id, upload_date, email_md5 in imgs]))))
+
+        heads = script(k(src="/user.js"))
+        html_string = Template.basic_frame(body_html, button_name="退出", button_url="/accounts/logout", heads=heads)
         return html_string
 
     @staticmethod

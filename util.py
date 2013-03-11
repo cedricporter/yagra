@@ -6,6 +6,7 @@
 import hashlib
 import json
 import re
+import string
 
 
 NOT_USER_PATTERN = re.compile("[^a-z0-9]")
@@ -43,7 +44,7 @@ def flatten(nested):
     flat = list()
     def flatten_in(nested, flat):
         for i in nested:
-            flatten_in(i, flat) if isinstance(i, list) else flat.append(i)
+            flatten_in(i, flat) if isinstance(i, (list, tuple)) else flat.append(i)
         return flat
     flatten_in(nested, flat)
     return flat
@@ -58,3 +59,11 @@ def hash_password(pwd):
     h.update(PASSWORD_SALT)
     h.update(pwd)
     return h.hexdigest()
+
+
+VALID_CHAR_SET = frozenset("-_.() %s%s" % (string.ascii_letters, string.digits))
+
+
+def purge_filename(filename):
+    "去掉文件名中不合法的部分。仅支持不含路径的文件名"
+    return "".join(c for c in filename if c in VALID_CHAR_SET)
