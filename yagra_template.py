@@ -57,7 +57,8 @@ class Template(object):
     @staticmethod
     def signup():
         "注册页面"
-        body_html = flatten((h2("注册新用户"),
+        body_html = flatten((h2("创建用户！开始您的旅程！"),
+                             p("选择您的用户名，记得仅仅只能包含小些字母和数字哦！"),
                              form(k(id="create-account-form", action="/accounts/new", method="post"),
                                   # username
                                   p(label("用户名："),
@@ -119,13 +120,16 @@ class Template(object):
         body_html = utf8_join_flatten(
             (h1(u"管理Yagra头像"),
              "username: " + username,
+             # 上传表单
              form(k(action="/user/upload", method="post", enctype="multipart/form-data"),
                   input(k(type="text", name="username")),
                   input(k(type="file", name="user_head")),
                   input(k(type="submit"))),
+             # 其他
              h2("功能"),
              a(k(href="/accounts/login"), "login"),
              a(k(href="/accounts/logout"), "logout"),
+             # 用户头像列表
              div(k(id="gravatar_list"),
                  div(k(Class="gravatars"),
                      [div(k(Class="grav"), div(k(Class="gravatar"),

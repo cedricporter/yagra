@@ -18,6 +18,11 @@ $(document).ready(function () {
     });
 
     check_button.click(function () {
+	if (username.val() == "") {
+	    username_status.css("display", "inline").addClass("sayno").html("<br>用户名不能为空！");
+	    return;
+	}
+
 	username_status.css("display", "inline").html("<br>检查中...");
 	$.ajax({
 	    url: '/ajax-validate',
