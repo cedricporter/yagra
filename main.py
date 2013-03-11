@@ -41,22 +41,19 @@ class ImageWallHandler(MyBaseRequestHandler):
 
 class ProfileHandler(MyBaseRequestHandler):
     def get(self, username):
-        if not username:
-            self.write("fuck")
-            return
 
         c = db.cursor()
         c.execute("""
         SELECT user_email, user_email_md5
-        FROM yagra_user as u, yagra_user_head as h
-        WHERE u.ID = h.user_id  AND user_login = %s""", (username, ))
+        FROM yagra_user LEFT JOIN yagra_user_head ON ID = user_id
+        WHERE user_login = %s""", (username, ))
         row = c.fetchone()
         logging.info("ProfileHandler username: " + username + " " + str(row))
         if row:
             email, email_md5 = row
             html_string = Template.render("profile",
                                           email,
-                                          "/avatar/" + email_md5)
+                                          "/avatar/" + str(email_md5))
             self.write(html_string)
         else:
             self.redirect("/")
