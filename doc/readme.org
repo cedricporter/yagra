@@ -44,7 +44,7 @@
    我们将Apache的监听端口设为81,是因为我的服务器的前端Web Server为Nginx，监听80。所以通过Nginx将80端口的请求转发到Apache。
 
 *** Nginx配置
-    #+BEGIN_SRC nginx
+    #+BEGIN_EXAMPLE
       server {
           server_name yagra.everet.org;
 
@@ -52,7 +52,7 @@
               proxy_pass http://127.0.0.1:81;
           }
       }
-    #+END_SRC
+    #+END_EXAMPLE
 
     对于Nginx的配置仅需要转发就好了。
 
