@@ -311,11 +311,20 @@ class Application(object):
         connection = HTTPConnection(stream)
 
         env = os.environ
+        # 将CGI的环境变量还原回正常的header，CGI真是做了一堆无用功-_-||
+        headers = {"If-None-Match": env.get("HTTP_IF_NONE_MATCH", ""),
+                   "If-Modified-Since": env.get("HTTP_IF_MODIFIED_SINCE", ""),
+                   "Cookie": env.get("HTTP_COOKIE"),
+                   }
+        for k, v in headers:
+            if not v:
+                del headers[k]
+
         request = HTTPRequest(unicode(env["REQUEST_METHOD"], encoding="utf-8"),
                               unicode(env["REQUEST_URI"], encoding="utf-8"),
                               unicode(env.get("QUERY_STRING"), encoding="utf-8"),
                               env.get("HTTP_COOKIE"),
-                              None,
+                              headers,
                               unicode(env["REMOTE_ADDR"], encoding="utf-8"),
                               unicode(env.get("HTTP_HOST"), encoding="utf-8"),
                               connection)

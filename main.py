@@ -61,6 +61,11 @@ class ProfileHandler(MyBaseRequestHandler):
 
 
 class AvatarHandler(MyBaseRequestHandler):
+    """头像API支持
+
+    自动支持etag，这里的etag通过图片文件名hash，而不是通过图片内容进行hash。
+    这个是建立在所有的图片都有唯一的命名的基础。
+    """
     def get(self, email_md5):
         c = db.cursor()
         c.execute("""
@@ -77,6 +82,10 @@ class AvatarHandler(MyBaseRequestHandler):
         else:
             full_filename = "static/default.jpg"
 
+        # ETags 支持
+        etag = self._compute_etag(full_filename)
+        inm = self.request
+
         with open(full_filename, "rb") as f:
             img = f.read()
             length = len(img)
@@ -87,6 +96,10 @@ class AvatarHandler(MyBaseRequestHandler):
         mime = mimetypes.types_map.get(os.path.splitext(full_filename)[-1], "image/jpeg")
         self.set_header("Content-Type", mime)
         self.set_header("Cache-Control", "max-age=300")
+
+    def _compute_etag(filename):
+        "根据文件名计算etag"
+        return filename
 
 
 class AjaxValidateHandler(MyBaseRequestHandler):
