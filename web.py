@@ -24,7 +24,6 @@ cgi_fp = sys.stdin                        # for debug
 cgi_environ = os.environ
 
 
-
 class StdStream(object):
     """Standard output stream"""
 
@@ -225,7 +224,7 @@ class RequestHandler(object):
 
     def _generate_headers(self):
         lines = ["Status: %d %s" % (self._status_code,
-                                        httplib.responses[self._status_code])]
+                                    httplib.responses[self._status_code])]
 
         for k, v in self._headers.iteritems():
             lines.append("%s: %s" % (k, v))
@@ -320,14 +319,15 @@ class Application(object):
             if not headers[k]:
                 del headers[k]
 
-        request = HTTPRequest(unicode(env["REQUEST_METHOD"], encoding="utf-8"),
-                              unicode(env["REQUEST_URI"], encoding="utf-8"),
-                              unicode(env.get("QUERY_STRING"), encoding="utf-8"),
-                              env.get("HTTP_COOKIE"),
-                              headers,
-                              unicode(env["REMOTE_ADDR"], encoding="utf-8"),
-                              unicode(env.get("HTTP_HOST"), encoding="utf-8"),
-                              connection)
+        request = HTTPRequest(
+            unicode(env["REQUEST_METHOD"], encoding="utf-8"),
+            unicode(env["REQUEST_URI"], encoding="utf-8"),
+            unicode(env.get("QUERY_STRING"), encoding="utf-8"),
+            env.get("HTTP_COOKIE"),
+            headers,
+            unicode(env["REMOTE_ADDR"], encoding="utf-8"),
+            unicode(env.get("HTTP_HOST"), encoding="utf-8"),
+            connection)
         self._request = request
 
     def handle(self):
@@ -341,7 +341,8 @@ class Application(object):
             match = spec.regex.match(path)
             if match:
                 handler = spec.handler_class(self, request)
-                args = [unicode(urllib.unquote_plus(utf8(m)), "utf-8") for m in match.groups()]
+                args = [unicode(urllib.unquote_plus(utf8(m)), "utf-8")
+                        for m in match.groups()]
                 break
 
         if not handler:

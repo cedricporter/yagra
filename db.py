@@ -36,7 +36,7 @@ def test_insert():
     (%s, %s, %s, %s, %s, %s)
     """, (random_string(), "p@$$w0rd", "Cedric Porter",
           random_string() + "@gmail.com",
-           time.strftime('%Y-%m-%d %H:%M:%S'), str(1)))
+          time.strftime('%Y-%m-%d %H:%M:%S'), str(1)))
     db.commit()
     c.execute("SELECT * FROM yagra_user")
     pprint.pprint(c.fetchall())

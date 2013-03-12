@@ -33,9 +33,10 @@ class Template(object):
                         div(k(Class="middle"),
                             div(k(id="login"),
                                 div(k(id="loginContainer"),
-                                    a(k(id="login-trigger", Class="my-account-trigger", href=button_url),
-                                      span(button_name)),
-                                      )))),
+                                    a(k(id="login-trigger",
+                                        Class="my-account-trigger",
+                                        href=button_url),
+                                      span(button_name)))))),
                     # main
                     div(k(id="main"),
                         div(k(Class="middle"),
@@ -59,46 +60,65 @@ class Template(object):
         "注册页面"
         body_html = flatten((h2("创建用户！开始您的旅程！"),
                              p("选择您的用户名，记得仅仅只能包含小些字母和数字哦！"),
-                             form(k(id="create-account-form", action="/accounts/new", method="post"),
+                             form(k(id="create-account-form",
+                                    action="/accounts/new", method="post"),
                                   # username
                                   p(label("用户名："),
-                                    input(k(type="text", id="setusername", name="username", Class="text")),
-                                    input(k(type="button", Class="button", id="checkbutton", value="检查")),
-                                    span(k(id="username-status", style="display: none"))),
+                                    input(k(type="text", id="setusername",
+                                            name="username", Class="text")),
+                                    input(k(type="button", Class="button",
+                                            id="checkbutton", value="检查")),
+                                    span(k(id="username-status",
+                                           style="display: none"))),
                                   p(k(Class="label_align"),
                                     "用户名将是您的永久身份象征。"),
                                   # email
                                   p(label("邮箱"),
-                                    input(k(type="text", name="email", id="email", Class="text")),
-                                    span(k(id="email-status", style="display: none"))),
+                                    input(k(type="text", name="email",
+                                            id="email", Class="text")),
+                                    span(k(id="email-status",
+                                           style="display: none"))),
                                   # Password
                                   p(label("密码"),
-                                    input(k(type="password", name="password", id="pass1", Class="text"))),
+                                    input(k(type="password", name="password",
+                                            id="pass1", Class="text"))),
                                   p(label("再次输入密码"),
-                                    input(k(type="password", name="password-again", id="pass2", Class="text")),
-                                    span(k(id="password-status", style="display: none"))),
+                                    input(k(type="password",
+                                            name="password-again",
+                                            id="pass2", Class="text")),
+                                    span(k(id="password-status",
+                                           style="display: none"))),
                                   # submit
                                   p(k(Class="label_align"),
-                                    input(k(name="commit", type="submit", value="注册", Class="button", id="submit"))))))
+                                    input(k(name="commit", type="submit",
+                                            value="注册", Class="button",
+                                            id="submit"))))))
         heads = script(k(src="/signup.js"))
-        html_string = Template.basic_frame(body_html, button_url="/", button_name="首页", heads=heads)
+        html_string = Template.basic_frame(body_html,
+                                           button_url="/",
+                                           button_name="首页",
+                                           heads=heads)
         return html_string
 
     @staticmethod
     def login():
         "登陆页面"
         form_string = utf8_join_flatten((
-            form(k(id="create-account-form", action="/accounts/login", method="post"),
+            form(k(id="create-account-form",
+                   action="/accounts/login", method="post"),
                  h2("登录Yagra"),
                  p(label("用户名或者邮箱"),
                    input(k(type="text", name="username", Class="text")),
                  p(label("密码"),
                    input(k(type="password", name="password", Class="text"))),
                  p(k(Class="label_align"),
-                   input(k(name="commit", type="submit", value="登录", Class="button", id="submit"))))),
+                   input(k(name="commit", type="submit",
+                           value="登录", Class="button", id="submit"))))),
             p("还没有账号，", a(k(href="/accounts/signup"), "注册！"))))
 
-        html_string = Template.basic_frame(form_string, button_url="/", button_name="首页")
+        html_string = Template.basic_frame(form_string,
+                                           button_url="/",
+                                           button_name="首页")
         return html_string
 
     @staticmethod
@@ -107,7 +127,7 @@ class Template(object):
         html_string = html(
             [[div(p(upload_date.ctime())),
               img(k(src="/uploads/" + filename))]
-              for filename, upload_date in imgs])
+                for filename, upload_date in imgs])
         return html_string
 
     @staticmethod
@@ -126,21 +146,34 @@ class Template(object):
              img(k(src="/avatar/" + email_md5, width="300", height="300")),
              # 上传表单
              h3("上传头像"),
-             form(k(action="/user/upload", method="post", enctype="multipart/form-data"),
+             form(k(action="/user/upload", method="post",
+                    enctype="multipart/form-data"),
                   p(label("文件："), input(k(type="file", name="user_head"))),
-                  input(k(type="hidden", id="csrf_token", name="csrf_token", value=csrf_token)),
+                  input(k(type="hidden", id="csrf_token",
+                          name="csrf_token", value=csrf_token)),
                   p(k(Class="label_align"),
                     input(k(type="submit", Class="button")))),
              # 用户头像列表
              h3("点选下方图片应用图片"),
              div(k(id="gravatar_list"),
                  div(k(Class="gravatars"),
-                     [div(k(Class="grav"), div(k(id="img-id-" + str(image_id), Class="gravatar " + ("selected" if email_md5 else "")),
-                                               img(k(src="/uploads/" + filename, title=upload_date.ctime(), alt=upload_date.ctime(), width="100", height="100"))))
-                                               for filename, image_id, upload_date, email_md5 in imgs]))))
+                     [div(k(Class="grav"),
+                          div(k(id="img-id-" + str(image_id),
+                                Class="gravatar " + (
+                                    "selected" if email_md5 else "")),
+                              img(k(src="/uploads/" + filename,
+                                    title=upload_date.ctime(),
+                                    alt=upload_date.ctime(),
+                                    width="100",
+                                    height="100"))))
+                         for filename, image_id,
+                         upload_date, email_md5 in imgs]))))
 
         heads = script(k(src="/user.js"))
-        html_string = Template.basic_frame(body_html, button_name="退出", button_url="/accounts/logout", heads=heads)
+        html_string = Template.basic_frame(body_html,
+                                           button_name="退出",
+                                           button_url="/accounts/logout",
+                                           heads=heads)
         return html_string
 
     @staticmethod

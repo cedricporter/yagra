@@ -10,7 +10,8 @@ import string
 
 
 NOT_USER_PATTERN = re.compile("[^a-z0-9]")
-EMAIL_PATTERN = re.compile(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-])*\.[a-zA-Z]{2,4}$")
+EMAIL_PATTERN = re.compile(
+    r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-])*\.[a-zA-Z]{2,4}$")
 
 
 def yagra_check_email_valid(email):
@@ -42,9 +43,13 @@ def import_object(name):
 
 def flatten(nested):
     flat = list()
+
     def flatten_in(nested, flat):
         for i in nested:
-            flatten_in(i, flat) if isinstance(i, (list, tuple)) else flat.append(i)
+            if isinstance(i, (list, tuple)):
+                flatten_in(i, flat)
+            else:
+                flat.append(i)
         return flat
     flatten_in(nested, flat)
     return flat
@@ -61,7 +66,8 @@ def hash_password(pwd):
     return h.hexdigest()
 
 
-VALID_CHAR_SET = frozenset("-_.() %s%s" % (string.ascii_letters, string.digits))
+VALID_CHAR_SET = frozenset(
+    "-_.() %s%s" % (string.ascii_letters, string.digits))
 
 
 def purge_filename(filename):

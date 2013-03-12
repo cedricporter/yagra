@@ -3,14 +3,13 @@
 # Author: Hua Liang[Stupid ET] <et@everet.org>
 #
 
-import web
 import logging
 from db import db
 from base import RequestHandlerWithSession, authenticated
 from yagra_template import Template
 import hashlib
 import time
-from util import purge_filename, make_digest
+from util import purge_filename
 
 
 class UserHomeHandler(RequestHandlerWithSession):
@@ -48,7 +47,11 @@ def create_random_filename(filename):
 
     filename = purge_filename(filename)
 
-    return time.strftime("%Y_%m_%d_%H_%M_%S_") + "".join(random.choice(string.letters) for i in xrange(10)) + filename
+    new_filename = time.strftime("%Y_%m_%d_%H_%M_%S_")
+    new_filename += "".join(random.choice(string.letters) for i in xrange(10))
+    new_filename += filename
+
+    return new_filename
 
 
 class UploadImageHandler(RequestHandlerWithSession):
@@ -76,7 +79,10 @@ class UploadImageHandler(RequestHandlerWithSession):
 
         # 检查用户是否存在
         cursor = db.cursor()
-        cursor.execute("SELECT ID, user_email FROM yagra_user WHERE user_login = %s", (username, ))
+        cursor.execute("""
+        SELECT ID, user_email
+        FROM yagra_user
+        WHERE user_login = %s""", (username, ))
         row = cursor.fetchone()
         if row:
             user_id, user_email = row
@@ -85,17 +91,26 @@ class UploadImageHandler(RequestHandlerWithSession):
             email_md5 = m.hexdigest()
 
             # 插入图片信息到数据库中
-            cursor.execute("INSERT INTO yagra_image (user_id, filename, upload_date) VALUES (%s, %s, %s)",
-                           (str(user_id), filename, time.strftime('%Y-%m-%d %H:%M:%S')))
+            cursor.execute("""
+            INSERT INTO yagra_image (user_id, filename, upload_date)
+            VALUES (%s, %s, %s)""", (str(user_id),
+                                     filename,
+                                     time.strftime('%Y-%m-%d %H:%M:%S')))
             image_id = cursor.lastrowid
 
             # 判断用户是否已经有默认头像，没有则设置默认头像
-            cursor.execute("SELECT * FROM yagra_user_head WHERE user_email_md5 = %s", (email_md5, ))
+            cursor.execute("""
+            SELECT *
+            FROM yagra_user_head
+            WHERE user_email_md5 = %s""", (email_md5, ))
             row = cursor.fetchone()
             if not row:
-                logging.info("Insert into db. Filename %s, image_id: %d, user_id: %d" % (filename, image_id, user_id))
-                cursor.execute("INSERT INTO yagra_user_head (user_id, image_id, user_email_md5) VALUES (%s, %s, %s)",
-                               (user_id, image_id, email_md5))
+                logging.info(
+                    "Insert into db. Filename %s, image_id: %d, user_id: %d"
+                    % (filename, image_id, user_id))
+                cursor.execute("""
+                INSERT INTO yagra_user_head (user_id, image_id, user_email_md5)
+                VALUES (%s, %s, %s)""", (user_id, image_id, email_md5))
             db.commit()
 
         self.redirect("/user")
@@ -117,12 +132,17 @@ class SetAvatarHandler(RequestHandlerWithSession):
             return
 
         c = db.cursor()
-        c.execute("SELECT * FROM yagra_user, yagra_image WHERE ID = user_id AND user_login = %s AND image_id = %s",
-                  (username, new_image_id))
+        c.execute("""
+        SELECT *
+        FROM yagra_user, yagra_image
+        WHERE ID = user_id AND user_login = %s AND image_id = %s
+        """, (username, new_image_id))
         row = c.fetchone()
         if row:
-            c.execute("UPDATE yagra_user_head SET image_id = %s WHERE user_id = %s",
-                      (new_image_id, user_id))
+            c.execute("""
+            UPDATE yagra_user_head
+            SET image_id = %s
+            WHERE user_id = %s""", (new_image_id, user_id))
             # self.redirect("/user")
             self.write({"status": "OK"})
             return
