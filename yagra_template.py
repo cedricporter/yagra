@@ -119,20 +119,17 @@ class Template(object):
         "用户配置页面"
         body_html = utf8_join_flatten(
             (h1(u"管理Yagra头像"),
-             "username: " + username,
+             p("欢迎您，" + utf8(username)),
              img(k(src="/avatar/" + email_md5, width="300", height="300")),
              # 上传表单
+             h3("上传头像"),
              form(k(action="/user/upload", method="post", enctype="multipart/form-data"),
-                  input(k(type="text", name="username")),
-                  input(k(type="file", name="user_head")),
+                  p(label("文件："), input(k(type="file", name="user_head"))),
                   input(k(type="hidden", id="csrf_token", name="csrf_token", value=csrf_token)),
-                  input(k(type="submit"))),
-             # 其他
-             h2("功能"),
-             a(k(href="/accounts/login"), "login"),
-             a(k(href="/accounts/logout"), "logout"),
+                  p(k(Class="label_align"),
+                    input(k(type="submit", Class="button")))),
              # 用户头像列表
-             h3("点选下方图片应用图片，或", a(k(href="/"), "新增图片")),
+             h3("点选下方图片应用图片"),
              div(k(id="gravatar_list"),
                  div(k(Class="gravatars"),
                      [div(k(Class="grav"), div(k(id="img-id-" + str(image_id), Class="gravatar " + ("selected" if email_md5 else "")),
