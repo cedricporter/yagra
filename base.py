@@ -11,16 +11,20 @@ from db import db
 
 
 def authenticated(method):
+    "验证是否登录，需要session支持"
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
-        if not self.session.get("login"):
-            logging.info("Not logging")
-            logging.info(self.session)
+        # hack: check if there's session id
+        session_id = self.cookies.get("session_id")
+        url = self.get_login_url() or "/"
 
-            url = self.get_login_url() or "/"
+        if not session_id:
+            self.redirect(url)
+            return
+
+        if not self.session.get("login"):
             self.redirect(url)
             self.session.kill()
-            logging.info("Session killed")
             return
         return method(self, *args, **kwargs)
     return wrapper
@@ -32,6 +36,10 @@ class MyBaseRequestHandler(web.RequestHandler):
 
 
 class RequestHandlerWithSession(MyBaseRequestHandler):
+    """提供session支持的handler
+
+    如果有需要session支持的handler可以继承这个handler
+    """
     @property
     def session(self):
         if not hasattr(self, "_session"):
@@ -47,4 +55,4 @@ class RequestHandlerWithSession(MyBaseRequestHandler):
     def finalize(self):
         if hasattr(self, "_session"):
             self._session._save()
-            self._session.cleanup(86400 * 7)   # a week
+            self._session.cleanup(86400 * 1)   # a day

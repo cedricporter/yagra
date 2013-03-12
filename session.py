@@ -33,14 +33,17 @@ class Session(object):
 
     def _load(self, session_id=None):
         self.session_id = session_id
+        self.is_new_session = False
         if not self.session_id:
+            self.is_new_session = True
             self.session_id = self._generate_session_id()
         self._data = self.store[self.session_id] or dict()
 
     def _save(self):
         if not hasattr(self, "_killed"):
             self.store[self.session_id] = self._data
-            self.handler.set_cookie("session_id", self.session_id)
+            if self.is_new_session:
+                self.handler.set_cookie("session_id", self.session_id)
         else:
             self.handler.clear_cookie("session_id")
 
