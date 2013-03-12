@@ -22,6 +22,7 @@ def authenticated(method):
             self.redirect(url)
             return
 
+        # 无效session，跳转到登录页面，删除session
         if not self.session.get("login"):
             self.redirect(url)
             self.session.kill()
@@ -38,7 +39,8 @@ class MyBaseRequestHandler(web.RequestHandler):
 class RequestHandlerWithSession(MyBaseRequestHandler):
     """提供session支持的handler
 
-    如果有需要session支持的handler可以继承这个handler
+    如果有需要session支持的handler可以继承这个handler。
+    一旦继承这个handler，在访问session属性时，将会自动设置cookie: session_id用于跟踪session。
     """
     @property
     def session(self):

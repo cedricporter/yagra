@@ -132,7 +132,6 @@ class Test(unittest.TestCase):
             main.main()
             self.is_in(env.getoutput(), "Location: /accounts/login")
             self.is_in(env.getoutput(), "Status: (2|3)")
-            self.is_in(env.getoutput(), "Set-Cookie: session_id=;")
 
     def testUserLogin(self):
         "测试登陆"

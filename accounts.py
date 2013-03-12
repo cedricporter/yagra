@@ -120,9 +120,12 @@ class LoginHandler(RequestHandlerWithSession):
     def get(self):
         html_string = Template.render("login")
 
-        if self.session.get("login"):
+        sid = self.cookies.get("session_id")
+        if not sid:
+            self.write(html_string)
+        elif self.session.get("login"):
             self.redirect("/user")
-        else:
+        else:                             # 无效session
             self.session.kill()
             self.write(html_string)
 
