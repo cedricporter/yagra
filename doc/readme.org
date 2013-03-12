@@ -56,11 +56,11 @@
 
     对于Nginx的配置仅需要转发就好了。
 
-* 数据库创建
-  我在scheme.sql里面编写好了创建数据库，创建表以及新建用户授予权限的sql了。
+** 数据库创建
+   我在scheme.sql里面编写好了创建数据库，创建表以及新建用户授予权限的sql了。
 
-  所以需要一个有权限的用户来运行scheme.sql来为yagra创建数据库。
+   所以需要一个有权限的用户来运行scheme.sql来为yagra创建数据库。
 
-  #+BEGIN_SRC sh
-    mysql -u root -p < scheme.sql
-  #+END_SRC
+   #+BEGIN_SRC sh
+     mysql -u root -p < scheme.sql
+   #+END_SRC
