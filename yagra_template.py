@@ -81,20 +81,23 @@ class Template(object):
                                   p(k(Class="label_align"),
                                     input(k(name="commit", type="submit", value="注册", Class="button", id="submit"))))))
         heads = script(k(src="/signup.js"))
-        html_string = Template.basic_frame(body_html, heads=heads)
+        html_string = Template.basic_frame(body_html, button_url="/", button_name="首页", heads=heads)
         return html_string
 
     @staticmethod
     def login():
         "登陆页面"
-        form_string = form(k(id="create-account-form", action="/accounts/login", method="post"),
-                           h2("登录Yagra"),
-                           p(label("用户名或者邮箱"),
-                             input(k(type="text", name="username", Class="text")),
-                           p(label("密码"),
-                             input(k(type="password", name="password", Class="text"))),
-                           p(k(Class="label_align"),
-                             input(k(name="commit", type="submit", value="登录", Class="button", id="submit")))))
+        form_string = utf8_join_flatten((
+            form(k(id="create-account-form", action="/accounts/login", method="post"),
+                 h2("登录Yagra"),
+                 p(label("用户名或者邮箱"),
+                   input(k(type="text", name="username", Class="text")),
+                 p(label("密码"),
+                   input(k(type="password", name="password", Class="text"))),
+                 p(k(Class="label_align"),
+                   input(k(name="commit", type="submit", value="登录", Class="button", id="submit"))))),
+            p("还没有账号，", a(k(href="/accounts/signup"), "注册！"))))
+
         html_string = Template.basic_frame(form_string, button_url="/", button_name="首页")
         return html_string
 
