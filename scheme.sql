@@ -1,6 +1,8 @@
 -- Author: Hua Liang[Stupid ET]
 --
 
+CREATE DATABASE IF NOT EXISTS `yagra`;
+
 DROP TABLE IF EXISTS `yagra`.`yagra_user_head`;
 DROP TABLE IF EXISTS `yagra`.`yagra_image`;
 DROP TABLE IF EXISTS `yagra`.`yagra_user`;
