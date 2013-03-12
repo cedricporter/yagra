@@ -5,7 +5,6 @@
 
 import functools
 import web
-import logging
 from session import Session, MySQLStore
 from db import db
 

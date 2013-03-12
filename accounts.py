@@ -6,7 +6,8 @@
 from base import RequestHandlerWithSession, authenticated
 from cgi import escape
 from db import db
-from util import hash_password, yagra_check_username_valid, yagra_check_email_valid, make_digest
+from util import hash_password, yagra_check_username_valid
+from util import yagra_check_email_valid, make_digest
 from yagra_template import Template
 import logging
 import time
@@ -33,7 +34,8 @@ class NewAccountHandler(web.RequestHandler):
         username = self.get_argument("username")
         if not yagra_check_username_valid(username):
             html_string = Template.render("error",
-                                          "username %s is not valid" % (escape(username), ))
+                                          "username %s is not valid" % (
+                                              escape(username), ))
             self.write(html_string)
             return
         email = self.get_argument("email")
@@ -51,24 +53,33 @@ class NewAccountHandler(web.RequestHandler):
         # 检查email
         if not yagra_check_email_valid(email):
             html_string = Template.render("error",
-                                          "email: %s is not valid." % escape(email))
+                                          "email: %s is not valid."
+                                          % escape(email))
             self.write(html_string)
             return
 
         cursor = db.cursor()
         email_lower = email.lower()
-        cursor.execute("SELECT ID FROM yagra_user WHERE user_email = %s", (email_lower, ))
+        cursor.execute("""
+        SELECT ID
+        FROM yagra_user
+        WHERE user_email = %s""", (email_lower, ))
         if cursor.fetchone():
             html_string = Template.render("error",
-                                          "email %s registered!" % escape(email))
+                                          "email %s registered!"
+                                          % escape(email))
             self.write(html_string)
             return
 
         username_lower = username.lower()
-        cursor.execute("SELECT ID FROM yagra_user WHERE user_login = %s", (username_lower, ))
+        cursor.execute("""
+        SELECT ID
+        FROM yagra_user
+        WHERE user_login = %s""", (username_lower, ))
         if cursor.fetchone():
             html_string = Template.render("error",
-                                          "username %s registered!" % escape(username))
+                                          "username %s registered!"
+                                          % escape(username))
             self.write(html_string)
             return
 
@@ -135,7 +146,11 @@ class LoginHandler(RequestHandlerWithSession):
         password = hash_password(pwd)
 
         cursor = db.cursor()
-        cursor.execute("SELECT ID, user_login, user_email FROM yagra_user WHERE (user_login = %s OR user_email = %s) AND user_passwd = %s",
+        cursor.execute("""
+        SELECT ID, user_login, user_email
+        FROM yagra_user
+        WHERE (user_login = %s
+        OR user_email = %s) AND user_passwd = %s""",
                        (username_or_email, username_or_email, password))
         row = cursor.fetchone()
         if row:

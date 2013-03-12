@@ -53,11 +53,10 @@ for tag in ["html", "head", "body", "title",
 
 def test():
     string = html(
-        head(title("Lion"),
-            ),
+        head(title("Lion")),
         body(h1("Welcome"),
              [a(k(href="/"), "Link %d" % i) for i in xrange(10)],
-            ))
+             ))
 
     print string
 

@@ -103,7 +103,8 @@ class MySQLStore(Store):
         row = c.fetchone()
         if row:
             data = row[0]
-            sql = "UPDATE " + self.table + " SET atime = %s WHERE session_id = %s"
+            sql = "UPDATE " + self.table + \
+                  " SET atime = %s WHERE session_id = %s"
             c.execute(sql, (now, key))
             self.db.commit()
             c.close()
@@ -115,10 +116,12 @@ class MySQLStore(Store):
         pickled = self.encode(value)
         c = self.db.cursor()
         if key in self:
-            sql = "UPDATE " + self.table + " SET data = %s WHERE session_id = %s"
+            sql = "UPDATE " + self.table + \
+                  " SET data = %s WHERE session_id = %s"
             c.execute(sql, (pickled, key))
         else:
-            sql = "INSERT INTO " + self.table + " (session_id, data) VALUES (%s, %s)"
+            sql = "INSERT INTO " + self.table + \
+                  " (session_id, data) VALUES (%s, %s)"
             c.execute(sql, (key, pickled))
         self.db.commit()
         c.close()
@@ -145,7 +148,7 @@ class MySQLStore(Store):
 if __name__ == '__main__':
     from db import db
     session = Session(MySQLStore(db, "yagra_session"))
-    session._load("Set-Cookie: session_id=6875ff912235428cb87b04294934e36f50270df9890e4ad9bbfbd471e8e9c7acfd6ceac989a24d55809f3ea19b0a9bf2a19f5adec")
+    session._load()
     # print session["name"], session["age"]
     session["name"] = "Cedric Porter"
     session["age"] = 22

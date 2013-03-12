@@ -34,20 +34,23 @@ def create_cgi_environ():
                    'SERVER_PROTOCOL': 'HTTP/1.1',
                    'QUERY_STRING': '',
                    'HTTP_ACCEPT_CHARSET': 'UTF-8,*;q=0.5',
-                   'HTTP_USER_AGENT': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.17 (KHTML, like Gecko) Ubuntu Chromium/24.0.1312.56 Chrome/24.0.1312.56 Safari/537.17',
+                   'HTTP_USER_AGENT': 'Mozilla/5.0 (X11; Linux x86_64) '
+                   'AppleWebKit/537.17 (KHTML, like Gecko) Ubuntu '
+                   'Chromium/24.0.1312.56 Chrome/24.0.1312.56 Safari/537.17',
                    'HTTP_CONNECTION': 'keep-alive',
                    'SERVER_NAME': 'localhost',
                    'REMOTE_ADDR': '127.0.0.1',
                    'SERVER_PORT': '80',
                    'SERVER_ADDR': '127.0.0.1',
                    'DOCUMENT_ROOT': '/home/cedricporter/projects/yagra',
-                   'SCRIPT_FILENAME': '/home/cedricporter/projects/yagra/main.py',
+                   'SCRIPT_FILENAME': '/var/www/main.py',
                    'HTTP_HOST': 'localhost',
                    'HTTP_CACHE_CONTROL': 'max-age=0',
-                   'HTTP_ACCEPT': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                   'HTTP_ACCEPT': 'text/html,application/xhtml+xml,'
+                   'application/xml;q=0.9,*/*;q=0.8',
                    'GATEWAY_INTERFACE': 'CGI/1.1',
                    'REMOTE_PORT': '51742',
-                   'HTTP_ACCEPT_LANGUAGE': 'zh,zh-CN;q=0.8,en-US;q=0.6,en;q=0.4',
+                   'HTTP_ACCEPT_LANGUAGE': 'zh,zh-CN;q=0.8,en-US;q=0.6',
                    'HTTP_ACCEPT_ENCODING': 'gzip,deflate,sdch'}
     return cgi_environ
 
@@ -60,7 +63,7 @@ class EnvSetup(object):
     def __enter__(self):
         self.backup_env = os.environ
         import web
-        os.environ  = create_cgi_environ()
+        os.environ = create_cgi_environ()
         web.cgi_environ = os.environ
 
         self.io = StringIO.StringIO()
@@ -143,7 +146,8 @@ class Test(unittest.TestCase):
 
             username = "a"
             email = username + "@gmail.com"
-            body = "username=%s&email=%s&password=123123&password-again=123123" % (username, email)
+            body = "username=%s&email=%s&password=123123" \
+                   "&password-again=123123" % (username, email)
             env["Content-Length"] = str(len(body))
 
             with WriteStdin(body):
@@ -173,9 +177,12 @@ class Test(unittest.TestCase):
             env["REQUEST_URI"] = "/accounts/new"
             env["Content-Type"] = "application/x-www-form-urlencoded"
 
-            username = "".join(random.choice(string.lowercase + string.digits) for i in xrange(16))
+            username = "".join(
+                random.choice(string.lowercase + string.digits)
+                for i in xrange(16))
             email = username + "@gmail.com"
-            body = "username=%s&email=%s&password=asdf&password-again=asdf" % (username, email)
+            body = "username=%s&email=%s&password=asdf" \
+                   "&password-again=asdf" % (username, email)
             env["Content-Length"] = str(len(body))
 
             with WriteStdin(body):
@@ -200,7 +207,8 @@ class Test(unittest.TestCase):
                 env["Content-Type"] = "application/x-www-form-urlencoded"
 
                 email = "rose@gmail.com"
-                body = "username=%s&email=%s&password=asdf&password-again=asdf" % (username, email)
+                body = "username=%s&email=%s" \
+                       "&password=asdf&password-again=asdf" % (username, email)
                 env["Content-Length"] = str(len(body))
 
                 with WriteStdin(body):
@@ -225,7 +233,8 @@ class Test(unittest.TestCase):
                 env["Content-Type"] = "application/x-www-form-urlencoded"
 
                 username = "Jack"
-                body = "username=%s&email=%s&password=asdf&password-again=asdf" % (username, email)
+                body = "username=%s&email=%s" \
+                       "&password=asdf&password-again=asdf" % (username, email)
                 env["Content-Length"] = str(len(body))
 
                 with WriteStdin(body):

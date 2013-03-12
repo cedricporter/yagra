@@ -23,9 +23,13 @@ logging.getLogger().setLevel(logging.INFO)
 class MainHandler(RequestHandlerWithSession):
     def get(self):
         if self.session.get("login"):
-            html_string = Template.render("homepage", button_name="我的账户", button_url="/user")
+            html_string = Template.render("homepage",
+                                          button_name="我的账户",
+                                          button_url="/user")
         else:
-            html_string = Template.render("homepage", button_name="登录", button_url="/accounts/login")
+            html_string = Template.render("homepage",
+                                          button_name="登录",
+                                          button_url="/accounts/login")
 
         self.write(html_string)
 
@@ -99,7 +103,8 @@ class AvatarHandler(MyBaseRequestHandler):
             logging.info("Reading %s, Length: %d" % (str(f), length))
             self.set_header("Content-Length", length)
 
-        mime = mimetypes.types_map.get(os.path.splitext(full_filename)[-1], "image/jpeg")
+        mime = mimetypes.types_map.get(os.path.splitext(full_filename)[-1],
+                                       "image/jpeg")
         self.set_header("Content-Type", mime)
         self.set_header("Cache-Control", "max-age=300")
 
@@ -149,7 +154,10 @@ class AjaxValidateHandler(MyBaseRequestHandler):
             return
 
         c = db.cursor()
-        c.execute("SELECT ID FROM yagra_user WHERE user_login = %s", (username, ))
+        c.execute("""
+        SELECT ID
+        FROM yagra_user
+        WHERE user_login = %s""", (username, ))
         row = c.fetchone()
         if row:
             self.write({"status": "Failed",

@@ -105,9 +105,9 @@ class UploadImageHandler(RequestHandlerWithSession):
             WHERE user_email_md5 = %s""", (email_md5, ))
             row = cursor.fetchone()
             if not row:
-                logging.info(
-                    "Insert into db. Filename %s, image_id: %d, user_id: %d"
-                    % (filename, image_id, user_id))
+                logging.info("Insert into db. Filename %s, "
+                             "image_id: %d, "
+                             "user_id: %d" % (filename, image_id, user_id))
                 cursor.execute("""
                 INSERT INTO yagra_user_head (user_id, image_id, user_email_md5)
                 VALUES (%s, %s, %s)""", (user_id, image_id, email_md5))
