@@ -1,0 +1,57 @@
+#+TITLE: Yagra
+#+AUTHOR: Hua Liang[Stupid ET]
+
+* 环境搭建
+  因为要求Apache，我们就选用Apache，而且Apache对于CGI的支持也是不错的。
+
+** rewrite
+  对于Apache，我们首先需要打开它的rewrite模块。
+
+  #+BEGIN_SRC sh
+    a2enmode rewrite
+    service apache2 restart
+  #+END_SRC
+
+** 虚拟主机配置
+*** Apache
+   #+BEGIN_EXAMPLE
+     <VirtualHost *:81>
+         ServerName yagra.everet.org
+         ServerAdmin et@everet.org
+
+         DocumentRoot /var/www/yagra/
+         ErrorLog /var/log/apache2/yagra_errors.log
+         CustomLog /var/log/apache2/yagra_accesses.log common
+
+         AddHandler cgi-script .py
+         DirectoryIndex main.py
+
+         <Directory /var/www/yagra>
+             AllowOverride None
+             Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+             Order allow,deny
+             Allow from all
+             <IfModule mod_rewrite.c>
+                 RewriteEngine on
+                 RewriteBase /
+                 RewriteCond %{REQUEST_FILENAME} !-f
+                 RewriteCond %{REQUEST_FILENAME} !-d
+                 RewriteRule ^(.*)$ main.py/$1 [L]
+             </IfModule>
+         </Directory>
+     </VirtualHost>
+   #+END_EXAMPLE
+   我们将Apache的监听端口设为81,是因为我的服务器的前端Web Server为Nginx，监听80。所以通过Nginx将80端口的请求转发到Apache。
+
+*** Nginx
+    #+BEGIN_SRC nginx
+      server {
+          server_name yagra.everet.org;
+
+          location / {
+              proxy_pass http://127.0.0.1:81;
+          }
+      }
+    #+END_SRC
+
+    对于Nginx的配置仅需要转发就好了。
