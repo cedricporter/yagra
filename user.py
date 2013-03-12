@@ -10,7 +10,7 @@ from base import RequestHandlerWithSession, authenticated
 from yagra_template import Template
 import hashlib
 import time
-from util import purge_filename
+from util import purge_filename, make_digest
 
 
 class UserHomeHandler(RequestHandlerWithSession):
@@ -19,6 +19,7 @@ class UserHomeHandler(RequestHandlerWithSession):
     def get(self):
         username = self.session["username"]
         email_md5 = self.session["email_md5"]
+        csrf_token = self.session["_csrf_token"]
 
         c = db.cursor()
         c.execute("""
@@ -36,7 +37,8 @@ class UserHomeHandler(RequestHandlerWithSession):
         html_string = Template.render("userhome",
                                       username,
                                       email_md5,
-                                      imgs=c.fetchall())
+                                      imgs=c.fetchall(),
+                                      csrf_token=csrf_token)
         self.write(html_string)
 
 
@@ -53,8 +55,14 @@ class UploadImageHandler(RequestHandlerWithSession):
     "用户上传头像"
     @authenticated
     def post(self):
-        username = self.session["username"]
         user_head = self.get_argument("user_head")
+        csrf_token = self.get_argument("csrf_token")
+
+        if csrf_token != self.session["_csrf_token"]:
+            self.set_status(403)
+            return
+
+        username = self.session["username"]
 
         upload_filename = self.request.files["user_head"].filename
 
@@ -97,11 +105,16 @@ class SetAvatarHandler(RequestHandlerWithSession):
     "选择头像"
     @authenticated
     def post(self):
+        new_image_id = self.get_argument("new_image_id")
+        csrf_token = self.get_argument("csrf_token")
+
         username = self.session["username"]
         user_id = self.session["id"]
 
-        new_image_id = self.get_argument("new_image_id")
-        # nonce = self.get_argument("nonce")   # 防止CSRF
+        # check csrf
+        if csrf_token != self.session["_csrf_token"]:
+            self.set_status(403)
+            return
 
         c = db.cursor()
         c.execute("SELECT * FROM yagra_user, yagra_image WHERE ID = user_id AND user_login = %s AND image_id = %s",

@@ -67,3 +67,13 @@ VALID_CHAR_SET = frozenset("-_.() %s%s" % (string.ascii_letters, string.digits))
 def purge_filename(filename):
     "去掉文件名中不合法的部分。仅支持不含路径的文件名"
     return "".join(c for c in filename if c in VALID_CHAR_SET)
+
+
+def make_digest(msg):
+    "生成msg摘要"
+    import hashlib
+    import hmac
+    import base64
+
+    h = hmac.new("MY-SECRET-KEY-YAGRA", msg, hashlib.sha1)
+    return base64.encodestring(h.hexdigest())[:-1]   # remove trailing "\n"

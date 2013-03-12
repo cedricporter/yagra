@@ -115,7 +115,7 @@ class Template(object):
         return html_string
 
     @staticmethod
-    def userhome(username, email_md5, imgs):
+    def userhome(username, email_md5, imgs, csrf_token):
         "用户配置页面"
         body_html = utf8_join_flatten(
             (h1(u"管理Yagra头像"),
@@ -125,6 +125,7 @@ class Template(object):
              form(k(action="/user/upload", method="post", enctype="multipart/form-data"),
                   input(k(type="text", name="username")),
                   input(k(type="file", name="user_head")),
+                  input(k(type="hidden", id="csrf_token", name="csrf_token", value=csrf_token)),
                   input(k(type="submit"))),
              # 其他
              h2("功能"),

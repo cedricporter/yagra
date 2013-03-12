@@ -6,13 +6,13 @@
 from base import RequestHandlerWithSession, authenticated
 from cgi import escape
 from db import db
-from util import hash_password, yagra_check_username_valid, yagra_check_email_valid
+from util import hash_password, yagra_check_username_valid, yagra_check_email_valid, make_digest
 from yagra_template import Template
 import logging
-import re
 import time
 import web
 import hashlib
+import uuid
 
 
 class RegisterHandler(web.RequestHandler):
@@ -24,7 +24,7 @@ class RegisterHandler(web.RequestHandler):
 class NewAccountHandler(web.RequestHandler):
     def assure_input_valid(self):
         """检查用户名、邮箱是否合法，返回小写的用户名、邮箱以及密码
-p
+
         return None or (username_lower, pwd, email_lower)
         """
         self.set_status(403)
@@ -143,6 +143,7 @@ class LoginHandler(RequestHandlerWithSession):
 
             logging.info(row)
             self.session["login"] = True
+            self.session["_csrf_token"] = make_digest(uuid.uuid4().get_hex())
             self.session["id"] = ID
             self.session["username"] = username
             self.session["email"] = email
