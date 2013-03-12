@@ -314,10 +314,10 @@ class Application(object):
         # 将CGI的环境变量还原回正常的header，CGI真是做了一堆无用功-_-||
         headers = {"If-None-Match": env.get("HTTP_IF_NONE_MATCH", ""),
                    "If-Modified-Since": env.get("HTTP_IF_MODIFIED_SINCE", ""),
-                   "Cookie": env.get("HTTP_COOKIE"),
+                   "Cookie": env.get("HTTP_COOKIE", ""),
                    }
-        for k, v in headers:
-            if not v:
+        for k in headers.keys():
+            if not headers[k]:
                 del headers[k]
 
         request = HTTPRequest(unicode(env["REQUEST_METHOD"], encoding="utf-8"),

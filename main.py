@@ -14,6 +14,7 @@ import logging
 import mimetypes
 import os
 import web
+import hashlib
 
 
 logging.getLogger().setLevel(logging.INFO)
@@ -84,7 +85,12 @@ class AvatarHandler(MyBaseRequestHandler):
 
         # ETags 支持
         etag = self._compute_etag(full_filename)
-        inm = self.request
+        self.set_header("ETag", etag)
+
+        inm = self.request.headers.get("If-None-Match")
+        if inm and inm == etag:
+            self.set_status(304)
+            return
 
         with open(full_filename, "rb") as f:
             img = f.read()
@@ -97,9 +103,11 @@ class AvatarHandler(MyBaseRequestHandler):
         self.set_header("Content-Type", mime)
         self.set_header("Cache-Control", "max-age=300")
 
-    def _compute_etag(filename):
+    def _compute_etag(self, filename):
         "根据文件名计算etag"
-        return filename
+        hasher = hashlib.sha1()
+        hasher.update(filename)
+        return '"%s"' % hasher.hexdigest()
 
 
 class AjaxValidateHandler(MyBaseRequestHandler):
