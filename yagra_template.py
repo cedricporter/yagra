@@ -24,7 +24,7 @@ class Template(object):
         return html(
             head(title(title_name),
                  link(k(rel="stylesheet", type="text/css", href="/style.css")),
-                 script(k(src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js")),
+                 script(k(src="/jquery-1.9.1.min.js")),
                  heads),
             body(
                 div(k(id="wrap"),
@@ -95,7 +95,7 @@ class Template(object):
                              input(k(type="password", name="password", Class="text"))),
                            p(k(Class="label_align"),
                              input(k(name="commit", type="submit", value="登录", Class="button", id="submit")))))
-        html_string = Template.basic_frame(form_string)
+        html_string = Template.basic_frame(form_string, button_url="/", button_name="首页")
         return html_string
 
     @staticmethod
