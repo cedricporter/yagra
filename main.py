@@ -86,6 +86,7 @@ class AvatarHandler(MyBaseRequestHandler):
 
         mime = mimetypes.types_map.get(os.path.splitext(full_filename)[-1], "image/jpeg")
         self.set_header("Content-Type", mime)
+        self.set_header("Cache-Control", "max-age=300")
 
 
 class AjaxValidateHandler(MyBaseRequestHandler):
