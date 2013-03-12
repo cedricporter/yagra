@@ -11,7 +11,7 @@ $(document).ready(function () {
     username.bind('keypress', function (event) {
 	var regex = new RegExp("^[a-z0-9]+$");
 	var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
-	if (!regex.test(key)) {
+	if (event.keyCode != 8 && event.keyCode != 46 && !regex.test(key)) {
 	    event.preventDefault();
 	    return false;
 	}
@@ -22,7 +22,7 @@ $(document).ready(function () {
     email.bind('keypress', function (event) {
 	var regex = new RegExp("^[a-zA-Z0-9-_.@]+$");
 	var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
-	if (!regex.test(key)) {
+	if (event.keyCode != 8 && event.keyCode != 46 && !regex.test(key)) {
 	    event.preventDefault();
 	    return false;
 	}
