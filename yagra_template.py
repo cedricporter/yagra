@@ -18,7 +18,7 @@ class Template(object):
         return template_gen(*args, **kwargs)
 
     @staticmethod
-    def basic_frame(body_html, button_name="", button_url="",
+    def basic_frame(body_html, button_name="首页", button_url="/",
                     title_name="Yagra", heads=""):
         "网站基本框架"
         return html(
@@ -158,10 +158,12 @@ class Template(object):
         return html_string
 
     @staticmethod
-    def profile(email, img_src):
+    def profile(username, email, img_src):
         "用户个人公共主页"
-        body_html = img(k(src=img_src, width="400", height="400"))
-        html_string = Template.basic_frame(body_html, "")
+        body_html = utf8_join_flatten((
+            h2(username, "的个人主页"),
+            img(k(src=img_src, width="400", height="400"))))
+        html_string = Template.basic_frame(body_html)
         return html_string
 
     @staticmethod

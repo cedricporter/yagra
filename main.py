@@ -57,6 +57,7 @@ class ProfileHandler(MyBaseRequestHandler):
         if row:
             email, email_md5 = row
             html_string = Template.render("profile",
+                                          username,
                                           email,
                                           "/avatar/" + str(email_md5))
             self.write(html_string)
