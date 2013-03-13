@@ -108,17 +108,24 @@ class Template(object):
                    action="/accounts/login", method="post"),
                  h2("登录Yagra"),
                  p(label("用户名或者邮箱"),
-                   input(k(type="text", name="username", Class="text")),
+                   input(k(type="text", id="username",
+                           name="username", Class="text")),
+                   span(k(id="username-status", style="display: none"))),
                  p(label("密码"),
-                   input(k(type="password", name="password", Class="text"))),
+                   input(k(type="password", id="password",
+                           name="password", Class="text")),
+                   span(k(id="password-status",
+                          style="display: none"))),
                  p(k(Class="label_align"),
                    input(k(name="commit", type="submit",
-                           value="登录", Class="button", id="submit"))))),
+                           value="登录", Class="button", id="submit")))),
             p("还没有账号，", a(k(href="/accounts/signup"), "注册！"))))
 
+        heads = script(k(src="/login.js"))
         html_string = Template.basic_frame(form_string,
                                            button_url="/",
-                                           button_name="首页")
+                                           button_name="首页",
+                                           heads=heads)
         return html_string
 
     @staticmethod
