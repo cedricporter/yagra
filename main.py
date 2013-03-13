@@ -9,11 +9,11 @@ cgitb.enable()
 from base import MyBaseRequestHandler, RequestHandlerWithSession
 from db import db
 from yagra_template import Template
-from util import yagra_check_username_valid, yagra_check_email_valid
+from everet.util import yagra_check_username_valid, yagra_check_email_valid
 import logging
 import mimetypes
 import os
-import web
+import everet.web
 import hashlib
 
 
@@ -169,7 +169,7 @@ class AjaxValidateHandler(MyBaseRequestHandler):
 
 
 def main():
-    app = web.Application([
+    app = everet.web.Application([
         (r"/", MainHandler),
         (r"/user/?", "user.UserHomeHandler"),
         (r"/avatar/(.+)", AvatarHandler),

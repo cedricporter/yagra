@@ -7,7 +7,7 @@
 这个是yagra的所有页面的模板，使用的是我的微型Lion引擎进行生成。
 """
 
-from template import *
+from everet.template import *
 
 
 class Template(object):

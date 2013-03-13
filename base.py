@@ -4,7 +4,7 @@
 #
 
 import functools
-import web
+import everet.web
 from session import Session, MySQLStore
 from db import db
 
@@ -30,7 +30,7 @@ def authenticated(method):
     return wrapper
 
 
-class MyBaseRequestHandler(web.RequestHandler):
+class MyBaseRequestHandler(everet.web.RequestHandler):
     def get_login_url(self):
         return "/accounts/login"
 

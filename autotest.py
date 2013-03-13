@@ -15,7 +15,7 @@ import os
 import re
 import random
 import string
-
+import everet.web as web
 
 PRINT_STDERR = True
 
@@ -62,7 +62,6 @@ class EnvSetup(object):
 
     def __enter__(self):
         self.backup_env = os.environ
-        import web
         os.environ = create_cgi_environ()
         web.cgi_environ = os.environ
 
@@ -100,13 +99,11 @@ class WriteStdin:
         self._data = data
 
     def __enter__(self):
-        import web
         web.cgi_fp = StringIO.StringIO()
         web.cgi_fp.write(self._data)
         web.cgi_fp.seek(0)
 
     def __exit__(self, type, value, traceback):
-        import web
         web.cgi_fp = sys.stdin
 
 

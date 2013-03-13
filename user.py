@@ -9,7 +9,7 @@ from base import RequestHandlerWithSession, authenticated
 from yagra_template import Template
 import hashlib
 import time
-from util import purge_filename
+from everet.util import purge_filename
 
 
 class UserHomeHandler(RequestHandlerWithSession):

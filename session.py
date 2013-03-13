@@ -145,13 +145,3 @@ class MySQLStore(Store):
         c.execute(sql, (last_allowed_time, ))
         self.db.commit()
         c.close()
-
-
-if __name__ == '__main__':
-    from db import db
-    session = Session(MySQLStore(db, "yagra_session"))
-    session._load()
-    # print session["name"], session["age"]
-    session["name"] = "Cedric Porter"
-    session["age"] = 22
-    session._save()

@@ -6,24 +6,23 @@
 from base import RequestHandlerWithSession, authenticated
 from cgi import escape
 from db import db
-from util import hash_password, yagra_check_username_valid
-from util import yagra_check_email_valid, make_digest
+from everet.util import hash_password, yagra_check_username_valid
+from everet.util import yagra_check_email_valid, make_digest
 from yagra_template import Template
 import logging
 import time
-import web
+import everet.web
 import hashlib
 import uuid
-import urllib
 
 
-class RegisterHandler(web.RequestHandler):
+class RegisterHandler(everet.web.RequestHandler):
     def get(self):
         html_string = Template.render("signup")
         self.write(html_string)
 
 
-class NewAccountHandler(web.RequestHandler):
+class NewAccountHandler(everet.web.RequestHandler):
     def assure_input_valid(self):
         """检查用户名、邮箱是否合法，返回小写的用户名、邮箱以及密码
 
