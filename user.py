@@ -67,7 +67,8 @@ class UploadImageHandler(RequestHandlerWithSession):
 
         username = self.session["username"]
 
-        upload_filename = self.request.files["user_head"].filename
+        upload_filename = unicode(self.request.files["user_head"].filename,
+                                  encoding="utf-8")
 
         filename = create_random_filename(username + "_" + upload_filename)
 

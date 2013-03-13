@@ -14,8 +14,8 @@ import re
 import sys
 import traceback
 import urlparse
-import session
 import urllib
+import logging
 
 from util import import_object, utf8, json_encode
 
@@ -249,6 +249,7 @@ class RequestHandler(object):
             self.finalize()
         except Exception, e:
             self._handle_request_exception(e)
+            logging.error(e, exc_info=True)
         finally:
             self.flush()
 
