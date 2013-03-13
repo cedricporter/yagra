@@ -6,7 +6,7 @@
 import cgitb
 cgitb.enable()
 
-from base import MyBaseRequestHandler, RequestHandlerWithSession, authenticated
+from base import MyBaseRequestHandler, RequestHandlerWithSession
 from db import db
 from yagra_template import Template
 from util import yagra_check_username_valid, yagra_check_email_valid

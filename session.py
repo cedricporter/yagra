@@ -45,7 +45,9 @@ class Session(object):
             if self.is_new_session:
                 self.handler.set_cookie("session_id", self.session_id)
         else:
-            self.handler.clear_cookie("session_id")
+            # 不是new session，也就是浏览器没有session_id，也就不用清除了。
+            if not self.is_new_session:
+                self.handler.clear_cookie("session_id")
 
     def _generate_session_id(self):
         "Generate a 64 bytes string"

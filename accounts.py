@@ -14,6 +14,7 @@ import time
 import web
 import hashlib
 import uuid
+import urllib
 
 
 class RegisterHandler(web.RequestHandler):
@@ -167,8 +168,12 @@ class LoginHandler(RequestHandlerWithSession):
             self.session["email"] = email
             self.session["email_md5"] = email_md5
             self.set_cookie("session_id", self.session.session_id)
-            return self.redirect("/user")
-        self.write("Error")
+            self.redirect("/user")
+            return
+
+        # 登录失败
+        html_string = Template.render("login", login_failed=True)
+        self.write(html_string)
 
 
 class LogoutHandler(RequestHandlerWithSession):

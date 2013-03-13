@@ -101,11 +101,18 @@ class Template(object):
         return html_string
 
     @staticmethod
-    def login():
+    def login(login_failed=False):
         "登陆页面"
+        notice_html = ""
+        if login_failed:
+            notice_html = div(k(Class="notice-container"),
+                              ul(li(k(Class="bad-notice"),
+                                 "错误的邮箱、用户名或者密码，请重试！")))
+
         form_string = utf8_join_flatten((
             form(k(id="create-account-form",
                    action="/accounts/login", method="post"),
+                 notice_html,
                  h2("登录Yagra"),
                  p(label("用户名或者邮箱"),
                    input(k(type="text", id="username",
@@ -186,9 +193,7 @@ class Template(object):
     @staticmethod
     def error(msg):
         "错误页面"
-        return html(
-            head(title("错误")),
-            body(
-                "遇到了错误！",
-                br(),
-                msg))
+        return Template.basic_frame(msg,
+                                    button_name="主页",
+                                    button_url="/",
+                                    title_name="出错了！")
