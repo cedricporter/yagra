@@ -169,12 +169,18 @@ class Template(object):
     @staticmethod
     def userhome(username, email_md5, imgs, csrf_token):
         "用户配置页面"
+        avatar_query_string = ""
+        for f, i, u, m in imgs:
+            if m:
+                avatar_query_string = i
+                break
         profile_url = "/" + username
         body_html = utf8_join_flatten(
             (h1(u"管理Yagra头像"),
              p("欢迎您，" + utf8(username), "。 ",
                a(k(href=profile_url), "点击进入你的个人主页")),
-             img(k(src="/avatar/" + email_md5, width="300", height="300")),
+             img(k(src="/avatar/" + email_md5 + "?" + avatar_query_string,
+                   width="300", height="300")),
              # 上传表单
              h3("上传头像"),
              form(k(action="/user/upload", method="post",
