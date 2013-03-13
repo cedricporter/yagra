@@ -116,7 +116,11 @@ $(document).ready(function () {
 
 	if (is_failed) return false;
 
-	if (pass1.val() != pass2.val()) return false;
+	if (pass1.val() == "" || pass2.val() == "" || pass1.val() != pass2.val()) {
+	    var password_status = $("#password-status");
+	    password_status.css("display", "inline").css("color", "red").html("密码不匹配或者为空！");
+	    return false;
+	}
 
 	return true;
     });
