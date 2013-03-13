@@ -179,7 +179,7 @@ class Template(object):
             (h1(u"管理Yagra头像"),
              p("欢迎您，" + utf8(username), "。 ",
                a(k(href=profile_url), "点击进入你的个人主页")),
-             img(k(src="/avatar/" + email_md5 + "?" + avatar_query_string,
+             img(k(src="/avatar/" + email_md5 + "?" + str(avatar_query_string),
                    width="300", height="300")),
              # 上传表单
              h3("上传头像"),
