@@ -64,3 +64,6 @@
    #+BEGIN_SRC sh
      mysql -u root -p < scheme.sql
    #+END_SRC
+
+** 上传图片文件夹权限设置
+   请在当前站点根目录创建一个文件夹**uploads**，并且授予CGI脚本运行用户对uploads文件夹有可读可写的权限。
