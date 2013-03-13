@@ -45,7 +45,7 @@ for tag in ["html", "head", "body", "title",
             "script", "form", "input", "div",
             "img", "p", "strong", "br", "ul",
             "li", "dd", "dt", "dl", "a", "meta",
-            "link", "span", "label",
+            "link", "span", "label", "code",
             ] + ["h%d" % i for i in xrange(6)]:
     func = t.substitute(tag=tag)
     exec(func)
