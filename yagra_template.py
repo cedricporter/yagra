@@ -23,8 +23,9 @@ class Template(object):
         "网站基本框架"
         return html(
             head(title(title_name),
-                 link(k(rel="stylesheet", type="text/css", href="/style.css")),
-                 script(k(src="/jquery-1.9.1.min.js")),
+                 link(k(rel="stylesheet", type="text/css",
+                        href="/static/style.css")),
+                 script(k(src="/static/jquery-1.9.1.min.js")),
                  heads),
             body(
                 div(k(id="wrap"),
@@ -106,7 +107,7 @@ class Template(object):
                                     input(k(name="commit", type="submit",
                                             value="注册", Class="button",
                                             id="submit"))))))
-        heads = script(k(src="/signup.js"))
+        heads = script(k(src="/static/signup.js"))
         html_string = Template.basic_frame(body_html,
                                            button_url="/",
                                            button_name="首页",
@@ -141,7 +142,7 @@ class Template(object):
                            value="登录", Class="button", id="submit")))),
             p("还没有账号，", a(k(href="/accounts/signup"), "注册！"))))
 
-        heads = script(k(src="/login.js"))
+        heads = script(k(src="/static/login.js"))
         html_string = Template.basic_frame(form_string,
                                            button_url="/",
                                            button_name="首页",
@@ -206,7 +207,7 @@ class Template(object):
                          for filename, image_id,
                          upload_date, email_md5 in imgs]))))
 
-        heads = script(k(src="/user.js"))
+        heads = script(k(src="/static/user.js"))
         html_string = Template.basic_frame(body_html,
                                            button_name="退出",
                                            button_url="/accounts/logout",
