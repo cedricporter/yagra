@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="Yagra"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2013-03-14 17:11 Thursday"/>
+<meta name="generated" content="2013-03-14 17:16 Thursday"/>
 <meta name="author" content="Hua Liang [Stupid ET]"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -30,32 +30,33 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">1 环境搭建</a>
+<li><a href="#sec-1">1 源码获取</a></li>
+<li><a href="#sec-2">2 环境搭建</a>
 <ul>
-<li><a href="#sec-1-1">1.1 rewrite</a></li>
-<li><a href="#sec-1-2">1.2 虚拟主机配置</a>
+<li><a href="#sec-2-1">2.1 rewrite</a></li>
+<li><a href="#sec-2-2">2.2 虚拟主机配置</a>
 <ul>
-<li><a href="#sec-1-2-1">1.2.1 Apache配置</a></li>
-<li><a href="#sec-1-2-2">1.2.2 Nginx配置</a></li>
+<li><a href="#sec-2-2-1">2.2.1 Apache配置</a></li>
+<li><a href="#sec-2-2-2">2.2.2 Nginx配置</a></li>
 </ul>
 </li>
-<li><a href="#sec-1-3">1.3 数据库创建</a></li>
-<li><a href="#sec-1-4">1.4 上传图片文件夹权限设置</a></li>
+<li><a href="#sec-2-3">2.3 数据库创建</a></li>
+<li><a href="#sec-2-4">2.4 上传图片文件夹权限设置</a></li>
 </ul>
 </li>
-<li><a href="#sec-2">2 yagra功能介绍</a>
+<li><a href="#sec-3">3 yagra功能介绍</a>
 <ul>
-<li><a href="#sec-2-1">2.1 注册</a></li>
-<li><a href="#sec-2-2">2.2 用户头像管理页面</a></li>
-<li><a href="#sec-2-3">2.3 头像api</a></li>
+<li><a href="#sec-3-1">3.1 注册</a></li>
+<li><a href="#sec-3-2">3.2 用户头像管理页面</a></li>
+<li><a href="#sec-3-3">3.3 头像api</a></li>
 </ul>
 </li>
-<li><a href="#sec-3">3 yagra的设计</a>
+<li><a href="#sec-4">4 yagra的设计</a>
 <ul>
-<li><a href="#sec-3-1">3.1 html生成</a></li>
-<li><a href="#sec-3-2">3.2 选择头像</a></li>
-<li><a href="#sec-3-3">3.3 数据库设计</a></li>
-<li><a href="#sec-3-4">3.4 yagra整体</a></li>
+<li><a href="#sec-4-1">4.1 html生成</a></li>
+<li><a href="#sec-4-2">4.2 选择头像</a></li>
+<li><a href="#sec-4-3">4.3 数据库设计</a></li>
+<li><a href="#sec-4-4">4.4 yagra整体</a></li>
 </ul>
 </li>
 </ul>
@@ -63,17 +64,38 @@
 </div>
 
 <div id="outline-container-1" class="outline-2">
-<h2 id="sec-1"><span class="section-number-2">1</span> 环境搭建</h2>
+<h2 id="sec-1"><span class="section-number-2">1</span> 源码获取</h2>
 <div class="outline-text-2" id="text-1">
+
+<p>  源码使用了Google Code提供的SVN服务。
+</p>
+<p>
+  访问 <a href="https://code.google.com/p/cedricporter-yagra/source/checkout">https://code.google.com/p/cedricporter-yagra/source/checkout</a>
+</p>
+
+
+
+<pre class="src src-sh">svn checkout http://cedricporter-yagra.googlecode.com/svn/trunk/ cedricporter-yagra-read-only
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> 环境搭建</h2>
+<div class="outline-text-2" id="text-2">
 
 <p>  因为要求Apache，我们就选用Apache，而且Apache对于CGI的支持也是不错的。
 </p>
 
 </div>
 
-<div id="outline-container-1-1" class="outline-3">
-<h3 id="sec-1-1"><span class="section-number-3">1.1</span> rewrite</h3>
-<div class="outline-text-3" id="text-1-1">
+<div id="outline-container-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> rewrite</h3>
+<div class="outline-text-3" id="text-2-1">
 
 <p>  对于Apache，我们首先需要打开它的rewrite模块。因为需要Apache将所有的请求全部rewrite到指定处理器后面。详情见下面的配置。
 </p>
@@ -89,16 +111,16 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-1-2" class="outline-3">
-<h3 id="sec-1-2"><span class="section-number-3">1.2</span> 虚拟主机配置</h3>
-<div class="outline-text-3" id="text-1-2">
+<div id="outline-container-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> 虚拟主机配置</h3>
+<div class="outline-text-3" id="text-2-2">
 
 
 </div>
 
-<div id="outline-container-1-2-1" class="outline-4">
-<h4 id="sec-1-2-1"><span class="section-number-4">1.2.1</span> Apache配置</h4>
-<div class="outline-text-4" id="text-1-2-1">
+<div id="outline-container-2-2-1" class="outline-4">
+<h4 id="sec-2-2-1"><span class="section-number-4">2.2.1</span> Apache配置</h4>
+<div class="outline-text-4" id="text-2-2-1">
 
 
 
@@ -137,9 +159,9 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-1-2-2" class="outline-4">
-<h4 id="sec-1-2-2"><span class="section-number-4">1.2.2</span> Nginx配置</h4>
-<div class="outline-text-4" id="text-1-2-2">
+<div id="outline-container-2-2-2" class="outline-4">
+<h4 id="sec-2-2-2"><span class="section-number-4">2.2.2</span> Nginx配置</h4>
+<div class="outline-text-4" id="text-2-2-2">
 
 
 
@@ -164,9 +186,9 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-1-3" class="outline-3">
-<h3 id="sec-1-3"><span class="section-number-3">1.3</span> 数据库创建</h3>
-<div class="outline-text-3" id="text-1-3">
+<div id="outline-container-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> 数据库创建</h3>
+<div class="outline-text-3" id="text-2-3">
 
 <p>   我在scheme.sql里面编写好了创建数据库，创建表以及新建用户授予权限的sql了。
 </p>
@@ -184,9 +206,9 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-1-4" class="outline-3">
-<h3 id="sec-1-4"><span class="section-number-3">1.4</span> 上传图片文件夹权限设置</h3>
-<div class="outline-text-3" id="text-1-4">
+<div id="outline-container-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> 上传图片文件夹权限设置</h3>
+<div class="outline-text-3" id="text-2-4">
 
 <p>   请在当前站点根目录创建一个文件夹*uploads*，并且授予CGI脚本运行用户对uploads文件夹有可读可写的权限。
 </p>
@@ -196,17 +218,17 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-2" class="outline-2">
-<h2 id="sec-2"><span class="section-number-2">2</span> yagra功能介绍</h2>
-<div class="outline-text-2" id="text-2">
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> yagra功能介绍</h2>
+<div class="outline-text-2" id="text-3">
 
 
 
 </div>
 
-<div id="outline-container-2-1" class="outline-3">
-<h3 id="sec-2-1"><span class="section-number-3">2.1</span> 注册</h3>
-<div class="outline-text-3" id="text-2-1">
+<div id="outline-container-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> 注册</h3>
+<div class="outline-text-3" id="text-3-1">
 
 <p>   url: <a href="file:///accounts/signup">/accounts/signup</a>
 </p>
@@ -223,9 +245,9 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-2-2" class="outline-3">
-<h3 id="sec-2-2"><span class="section-number-3">2.2</span> 用户头像管理页面</h3>
-<div class="outline-text-3" id="text-2-2">
+<div id="outline-container-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> 用户头像管理页面</h3>
+<div class="outline-text-3" id="text-3-2">
 
 <p>   url: <a href="file:///user">/user</a>
 </p>
@@ -239,9 +261,9 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-2-3" class="outline-3">
-<h3 id="sec-2-3"><span class="section-number-3">2.3</span> 头像api</h3>
-<div class="outline-text-3" id="text-2-3">
+<div id="outline-container-3-3" class="outline-3">
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> 头像api</h3>
+<div class="outline-text-3" id="text-3-3">
 
 <p>   url: <a href="http://yagra.everet.org/avatar/6c50163a2c7165a5725cbf01bf04a68b">/avatar/{email's md5}</a>
 </p>
@@ -277,9 +299,9 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-3" class="outline-2">
-<h2 id="sec-3"><span class="section-number-2">3</span> yagra的设计</h2>
-<div class="outline-text-2" id="text-3">
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> yagra的设计</h2>
+<div class="outline-text-2" id="text-4">
 
 <p>  由于作业要求，yagra仅仅使用了Python标准库以及MySQLdb这个附加库。
 </p>
@@ -289,9 +311,9 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-3-1" class="outline-3">
-<h3 id="sec-3-1"><span class="section-number-3">3.1</span> html生成</h3>
-<div class="outline-text-3" id="text-3-1">
+<div id="outline-container-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> html生成</h3>
+<div class="outline-text-3" id="text-4-1">
 
 <p>   因为不能第三方库，也就不能使用模板引擎，如果直接通过字符串拼接生成html，这样是十分的低效。
 </p>
@@ -364,9 +386,9 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-3-2" class="outline-3">
-<h3 id="sec-3-2"><span class="section-number-3">3.2</span> 选择头像</h3>
-<div class="outline-text-3" id="text-3-2">
+<div id="outline-container-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> 选择头像</h3>
+<div class="outline-text-3" id="text-4-2">
 
 <p>   为了防止csrf，用户切换头像都需要csrf_token。
 </p>
@@ -374,9 +396,9 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-3-3" class="outline-3">
-<h3 id="sec-3-3"><span class="section-number-3">3.3</span> 数据库设计</h3>
-<div class="outline-text-3" id="text-3-3">
+<div id="outline-container-4-3" class="outline-3">
+<h3 id="sec-4-3"><span class="section-number-3">4.3</span> 数据库设计</h3>
+<div class="outline-text-3" id="text-4-3">
 
 <p>   数据库的设计请见scheme.sql这个文件，主要分为用户表，图片表、头像表和session表。
 </p>
@@ -387,9 +409,9 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-3-4" class="outline-3">
-<h3 id="sec-3-4"><span class="section-number-3">3.4</span> yagra整体</h3>
-<div class="outline-text-3" id="text-3-4">
+<div id="outline-container-4-4" class="outline-3">
+<h3 id="sec-4-4"><span class="section-number-3">4.4</span> yagra整体</h3>
+<div class="outline-text-3" id="text-4-4">
 
 <p>   yagra的整体策略是url rewrite到一个处理文件main.py，这样可以保证url的美观。而且可以通过分配器将不同url分派给不同的处理器。
 </p>
@@ -402,7 +424,7 @@ service apache2 restart
 
 <div id="postamble">
 <hr/><p class="author">Author: <a href="http://everet.org/about-me/">Hua Liang [Stupid ET]</a> </p>
-<p class="date">Last Updated: 2013-03-14 17:11 Thursday</p>
+<p class="date">Last Updated: 2013-03-14 17:16 Thursday</p>
 </div>
 </body>
 </html>

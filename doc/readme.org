@@ -3,6 +3,16 @@
 #+OPTIONS: ^:{}
 #+STYLE: <link rel="stylesheet" type="text/css" href="default.css" />
 
+* 源码获取
+  源码使用了Google Code提供的SVN服务。
+
+  访问 https://code.google.com/p/cedricporter-yagra/source/checkout
+
+  #+BEGIN_SRC sh
+    svn checkout http://cedricporter-yagra.googlecode.com/svn/trunk/ cedricporter-yagra-read-only
+  #+END_SRC
+
+
 * 环境搭建
   因为要求Apache，我们就选用Apache，而且Apache对于CGI的支持也是不错的。
 
