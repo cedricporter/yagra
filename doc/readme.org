@@ -1,5 +1,5 @@
 #+TITLE: Yagra
-#+AUTHOR: Hua Liang[Stupid ET]
+#+AUTHOR: Hua Liang [Stupid ET]
 #+OPTIONS: ^:{}
 #+STYLE: <link rel="stylesheet" type="text/css" href="default.css" />
 
