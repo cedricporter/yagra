@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="Yagra"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2013-03-14 19:22 Thursday"/>
+<meta name="generated" content="2013-03-14 19:28 Thursday"/>
 <meta name="author" content="Hua Liang [Stupid ET]"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -97,7 +97,7 @@
 <h3 id="sec-2-1"><span class="section-number-3">2.1</span> rewrite</h3>
 <div class="outline-text-3" id="text-2-1">
 
-<p>  对于Apache，我们首先需要打开它的rewrite模块。因为需要Apache将所有的请求全部rewrite到指定处理器后面。详情见下面的配置。
+<p>  对于Apache，我们首先需要打开它的rewrite模块。因为需要Apache将所有的请求全部rewrite到指定处理器后面。
 </p>
 
 
@@ -291,7 +291,10 @@ service apache2 restart
 
 
 <p>
-   ETag的计算是直接使用图像文件名的sha1，因为在保存图像的时候，就让每一幅图像拥有一个唯一的文件名。这样计算ETag的速度会比计算整张图像内容要快得多。
+   ETag的计算是直接使用图像文件名的sha1，因为在保存图像的时候，就确保每一幅图像拥有一个唯一的文件名，而且一张已经上传了图片不会更新。
+</p>
+<p>
+   因此这样通过唯一的文件名计算ETag的速度会比根据整张图像内容计算要快得多。
 </p>
 
 </div>
@@ -422,7 +425,7 @@ service apache2 restart
 
 <div id="postamble">
 <hr/><p class="author">Author: <a href="http://everet.org/about-me/">Hua Liang [Stupid ET]</a> </p>
-<p class="date">Last Updated: 2013-03-14 19:22 Thursday</p>
+<p class="date">Last Updated: 2013-03-14 19:28 Thursday</p>
 </div>
 </body>
 </html>

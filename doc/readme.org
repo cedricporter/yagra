@@ -17,7 +17,7 @@
   因为要求Apache，我们就选用Apache，而且Apache对于CGI的支持也是不错的。
 
 ** rewrite
-  对于Apache，我们首先需要打开它的rewrite模块。因为需要Apache将所有的请求全部rewrite到指定处理器后面。详情见下面的配置。
+  对于Apache，我们首先需要打开它的rewrite模块。因为需要Apache将所有的请求全部rewrite到指定处理器后面。
 
   #+BEGIN_SRC sh
     a2enmode rewrite
@@ -118,7 +118,9 @@
      Cache-Control: max-age=300
    #+END_EXAMPLE
 
-   ETag的计算是直接使用图像文件名的sha1，因为在保存图像的时候，就让每一幅图像拥有一个唯一的文件名。这样计算ETag的速度会比计算整张图像内容要快得多。
+   ETag的计算是直接使用图像文件名的sha1，因为在保存图像的时候，就确保每一幅图像拥有一个唯一的文件名，而且一张已经上传了图片不会更新。
+
+   因此这样通过唯一的文件名计算ETag的速度会比根据整张图像内容计算要快得多。
 
 
 * yagra的设计
