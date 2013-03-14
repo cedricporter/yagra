@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="Yagra"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2013-03-14 16:51 Thursday"/>
+<meta name="generated" content="2013-03-14 16:58 Thursday"/>
 <meta name="author" content="Hua Liang[Stupid ET]"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -188,7 +188,7 @@ service apache2 restart
 <h3 id="sec-1-4"><span class="section-number-3">1.4</span> 上传图片文件夹权限设置</h3>
 <div class="outline-text-3" id="text-1-4">
 
-<p>   请在当前站点根目录创建一个文件夹**uploads**，并且授予CGI脚本运行用户对uploads文件夹有可读可写的权限。
+<p>   请在当前站点根目录创建一个文件夹*uploads*，并且授予CGI脚本运行用户对uploads文件夹有可读可写的权限。
 </p>
 
 </div>
@@ -208,7 +208,7 @@ service apache2 restart
 <h3 id="sec-2-1"><span class="section-number-3">2.1</span> 注册</h3>
 <div class="outline-text-3" id="text-2-1">
 
-<p>   url: /accounts/signup
+<p>   url: <a href="file:///accounts/signup">/accounts/signup</a>
 </p>
 <p>
    对于yagra的注册，需要用户名、邮箱以及密码。用户名和邮箱都不能与之前用户重复。在选择用户名的时候，可以点击检查来检查用户名是否合法。
@@ -227,7 +227,7 @@ service apache2 restart
 <h3 id="sec-2-2"><span class="section-number-3">2.2</span> 用户头像管理页面</h3>
 <div class="outline-text-3" id="text-2-2">
 
-<p>   url: /user
+<p>   url: <a href="file:///user">/user</a>
 </p>
 <p>
    用户可以上传多张头像，然后可以通过点击头像，切换用户需要的头像。
@@ -243,7 +243,7 @@ service apache2 restart
 <h3 id="sec-2-3"><span class="section-number-3">2.3</span> 头像api</h3>
 <div class="outline-text-3" id="text-2-3">
 
-<p>   url: /avatar/[email's md5]
+<p>   url: <a href="http://yagra.everet.org/avatar/6c50163a2c7165a5725cbf01bf04a68b">/avatar/{email's md5}</a>
 </p>
 <p>
    头像访问api通过email的md5计算出来的url进行获取。
@@ -402,7 +402,7 @@ service apache2 restart
 
 <div id="postamble">
 <hr/><p class="author">Author: Hua Liang[Stupid ET] </p>
-<p class="date">Last Updated: 2013-03-14 16:51 Thursday</p>
+<p class="date">Last Updated: 2013-03-14 16:58 Thursday</p>
 </div>
 </body>
 </html>

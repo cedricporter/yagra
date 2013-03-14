@@ -70,13 +70,13 @@
    #+END_SRC
 
 ** 上传图片文件夹权限设置
-   请在当前站点根目录创建一个文件夹**uploads**，并且授予CGI脚本运行用户对uploads文件夹有可读可写的权限。
+   请在当前站点根目录创建一个文件夹*uploads*，并且授予CGI脚本运行用户对uploads文件夹有可读可写的权限。
 
 
 * yagra功能介绍
 
 ** 注册
-   url: /accounts/signup
+   url: [[/accounts/signup]]
 
    对于yagra的注册，需要用户名、邮箱以及密码。用户名和邮箱都不能与之前用户重复。在选择用户名的时候，可以点击检查来检查用户名是否合法。
 
@@ -85,14 +85,14 @@
    [[./signup.png]]
 
 ** 用户头像管理页面
-   url: /user
+   url: [[/user]]
 
    用户可以上传多张头像，然后可以通过点击头像，切换用户需要的头像。
 
    [[./userhome.png]]
 
 ** 头像api
-   url: /avatar/[email's md5]
+   url: [[http://yagra.everet.org/avatar/6c50163a2c7165a5725cbf01bf04a68b][/avatar/{email's md5}]]
 
    头像访问api通过email的md5计算出来的url进行获取。
 
