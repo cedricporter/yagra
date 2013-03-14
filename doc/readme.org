@@ -1,5 +1,7 @@
 #+TITLE: Yagra
 #+AUTHOR: Hua Liang[Stupid ET]
+#+OPTIONS: ^:{}
+#+STYLE: <link rel="stylesheet" type="text/css" href="default.css" />
 
 * 环境搭建
   因为要求Apache，我们就选用Apache，而且Apache对于CGI的支持也是不错的。
@@ -69,3 +71,119 @@
 
 ** 上传图片文件夹权限设置
    请在当前站点根目录创建一个文件夹**uploads**，并且授予CGI脚本运行用户对uploads文件夹有可读可写的权限。
+
+
+* yagra功能介绍
+
+** 注册
+   url: /accounts/signup
+
+   对于yagra的注册，需要用户名、邮箱以及密码。用户名和邮箱都不能与之前用户重复。在选择用户名的时候，可以点击检查来检查用户名是否合法。
+
+   除此之外，在点击注册按钮的时候，会向服务器检查所有的输入是否合法，只有都合法的时候才会提交表单，以免页面跳转导致用户需要重新输入。
+
+   [[./signup.png]]
+
+** 用户头像管理页面
+   url: /user
+
+   用户可以上传多张头像，然后可以通过点击头像，切换用户需要的头像。
+
+   [[./userhome.png]]
+
+** 头像api
+   url: /avatar/[email's md5]
+
+   头像访问api通过email的md5计算出来的url进行获取。
+
+   #+BEGIN_SRC python
+     avatar_url = "http://yagra.everet.org/avatar/" + hashlib.md5(email.lower())
+   #+END_SRC
+
+   对于头像api的访问，有进行缓存优化。
+
+   除了基本的设置300秒的缓存，让浏览器5分钟内不要再请求服务器外，还有利用ETag防止不必要的数据传输。
+
+   #+BEGIN_EXAMPLE
+     Cache-Control: max-age=300
+   #+END_EXAMPLE
+
+   ETag的计算是直接使用图像文件名的sha1，因为在保存图像的时候，就让每一幅图像拥有一个唯一的文件名。这样计算ETag的速度会比计算整张图像内容要快得多。
+
+
+* yagra的设计
+  由于作业要求，yagra仅仅使用了Python标准库以及MySQLdb这个附加库。
+
+  yagra的运行方式为CGI。
+
+** html生成
+   因为不能第三方库，也就不能使用模板引擎，如果直接通过字符串拼接生成html，这样是十分的低效。
+
+   于是我借鉴了lisp中html生成的方式，写了一个微型的模板引擎，这样我就可以方便地写html了。
+
+   #+BEGIN_SRC python
+     def homepage(button_name, button_url):
+         body_html = flatten((h2("欢迎来到Yagra"),
+                              p("Yagra是一个全球头像系统，可以为您的邮箱绑定一个头像。"),
+                              p("如果您还没有Yagra账号，那就赶紧注册一个吧！",
+                               	strong(a(k(href="/accounts/signup"), "点击注册"))),
+                              h3("头像访问API"),
+                              p("你只需要在gravatar注册一个账号，就可以通过邮箱md5访问你的头像"),
+                              code('avatar_url = '
+                                   '"http://yagra.everet.org/avatar/" '
+                                   '+ hashlib.md5(email.lower())'),
+                              h3("个人主页"),
+                              p("除此之外，您还将拥有一个个人主页哦！地址为"),
+                              code("http://yagra.everet.org/username"),
+                              p(),
+                              p("如我们", a(k(href="/rose"), "rose的个人主页")),
+                              ))
+         html_string = Template.basic_frame(body_html,
+                                            button_name=button_name,
+                                            button_url=button_url)
+         return html_string
+   #+END_SRC
+
+   上面是我的首页的html的代码生成，直接通过html标签的同名函数来编写。而这些繁琐的函数是怎么生成的呢？
+
+   这里我使用了Python的黑魔法exec。于是整个模板引擎的代码如下所示，非常的短就创建了许多函数。详见"everet/template.py"
+
+   #+BEGIN_SRC python
+     t = Template("""
+     def $tag(kwargs=dict(), *args):
+
+         prefix = "<$tag "
+         if isinstance(kwargs, dict):
+             for k, v in kwargs.iteritems():
+                 prefix += '%s="%s" ' % (utf8(k), utf8(str(v)))
+         else:
+             args = (kwargs, ) + args
+         prefix += ">"
+
+         string = prefix + utf8_join_flatten(args) + "</$tag>"
+
+         return string
+     """)
+
+     for tag in ["html", "head", "body", "title",
+                 "script", "form", "input", "div",
+                 "img", "p", "strong", "br", "ul",
+                 "li", "dd", "dt", "dl", "a", "meta",
+                 "link", "span", "label", "code",
+                 ] + ["h%d" % i for i in xrange(6)]:
+         func = t.substitute(tag=tag)
+         exec(func)
+   #+END_SRC
+
+** 选择头像
+   为了防止csrf，用户切换头像都需要csrf_token。
+
+** 数据库设计
+   数据库的设计请见scheme.sql这个文件，主要分为用户表，图片表、头像表和session表。
+
+   里面创建了数据库yagra以及用户yagra并为yagra授予必要的权限。
+
+** yagra整体
+   yagra的整体策略是url rewrite到一个处理文件main.py，这样可以保证url的美观。而且可以通过分配器将不同url分派给不同的处理器。
+
+   这点借鉴了多数框架的思路。

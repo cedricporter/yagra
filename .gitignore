@@ -1,3 +1,4 @@
 *.pyc
 uploads/
 /everet/__init___flymake.py
+/doc/.directory
