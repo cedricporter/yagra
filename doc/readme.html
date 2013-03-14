@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="Yagra"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2013-03-14 17:16 Thursday"/>
+<meta name="generated" content="2013-03-14 19:22 Thursday"/>
 <meta name="author" content="Hua Liang [Stupid ET]"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -53,10 +53,10 @@
 </li>
 <li><a href="#sec-4">4 yagra的设计</a>
 <ul>
-<li><a href="#sec-4-1">4.1 html生成</a></li>
-<li><a href="#sec-4-2">4.2 选择头像</a></li>
-<li><a href="#sec-4-3">4.3 数据库设计</a></li>
-<li><a href="#sec-4-4">4.4 yagra整体</a></li>
+<li><a href="#sec-4-1">4.1 url处理</a></li>
+<li><a href="#sec-4-2">4.2 html生成</a></li>
+<li><a href="#sec-4-3">4.3 选择头像</a></li>
+<li><a href="#sec-4-4">4.4 数据库设计</a></li>
 </ul>
 </li>
 </ul>
@@ -312,8 +312,19 @@ service apache2 restart
 </div>
 
 <div id="outline-container-4-1" class="outline-3">
-<h3 id="sec-4-1"><span class="section-number-3">4.1</span> html生成</h3>
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> url处理</h3>
 <div class="outline-text-3" id="text-4-1">
+
+<p>   yagra的对于url处理的策略是url rewrite到一个处理文件main.py，这样可以保证url的美观。而且可以通过分配器将不同url通过正则表达式分派给不同的请求处理器。这样的代码结构会更加易于理解和维护。
+</p>
+
+</div>
+
+</div>
+
+<div id="outline-container-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> html生成</h3>
+<div class="outline-text-3" id="text-4-2">
 
 <p>   因为不能第三方库，也就不能使用模板引擎，如果直接通过字符串拼接生成html，这样是十分的低效。
 </p>
@@ -329,7 +340,7 @@ service apache2 restart
                          p(<span style="color: #cc9393;">"&#22914;&#26524;&#24744;&#36824;&#27809;&#26377;Yagra&#36134;&#21495;&#65292;&#37027;&#23601;&#36214;&#32039;&#27880;&#20876;&#19968;&#20010;&#21543;&#65281;"</span>,
                            strong(<span style="color: #dcdccc; background-color: #3f3f3f;">a</span>(k(href=<span style="color: #cc9393;">"/accounts/signup"</span>), <span style="color: #cc9393;">"&#28857;&#20987;&#27880;&#20876;"</span>))),
                          h3(<span style="color: #cc9393;">"&#22836;&#20687;&#35775;&#38382;API"</span>),
-                         p(<span style="color: #cc9393;">"&#20320;&#21482;&#38656;&#35201;&#22312;gravatar&#27880;&#20876;&#19968;&#20010;&#36134;&#21495;&#65292;&#23601;&#21487;&#20197;&#36890;&#36807;&#37038;&#31665;md5&#35775;&#38382;&#20320;&#30340;&#22836;&#20687;"</span>),
+                         p(<span style="color: #cc9393;">"&#20320;&#21482;&#38656;&#35201;&#22312;yagra&#27880;&#20876;&#19968;&#20010;&#36134;&#21495;&#65292;&#23601;&#21487;&#20197;&#36890;&#36807;&#37038;&#31665;md5&#35775;&#38382;&#20320;&#30340;&#22836;&#20687;"</span>),
                          code(<span style="color: #cc9393;">'avatar_url = '</span>
                               <span style="color: #cc9393;">'"http://yagra.everet.org/avatar/" '</span>
                               <span style="color: #cc9393;">'+ hashlib.md5(email.lower())'</span>),
@@ -386,37 +397,24 @@ service apache2 restart
 
 </div>
 
-<div id="outline-container-4-2" class="outline-3">
-<h3 id="sec-4-2"><span class="section-number-3">4.2</span> 选择头像</h3>
-<div class="outline-text-3" id="text-4-2">
-
-<p>   为了防止csrf，用户切换头像都需要csrf_token。
-</p>
-</div>
-
-</div>
-
 <div id="outline-container-4-3" class="outline-3">
-<h3 id="sec-4-3"><span class="section-number-3">4.3</span> 数据库设计</h3>
+<h3 id="sec-4-3"><span class="section-number-3">4.3</span> 选择头像</h3>
 <div class="outline-text-3" id="text-4-3">
 
-<p>   数据库的设计请见scheme.sql这个文件，主要分为用户表，图片表、头像表和session表。
-</p>
-<p>
-   里面创建了数据库yagra以及用户yagra并为yagra授予必要的权限。
+<p>   为了防止csrf，用户切换头像的请求都需要csrf_token。
 </p>
 </div>
 
 </div>
 
 <div id="outline-container-4-4" class="outline-3">
-<h3 id="sec-4-4"><span class="section-number-3">4.4</span> yagra整体</h3>
+<h3 id="sec-4-4"><span class="section-number-3">4.4</span> 数据库设计</h3>
 <div class="outline-text-3" id="text-4-4">
 
-<p>   yagra的整体策略是url rewrite到一个处理文件main.py，这样可以保证url的美观。而且可以通过分配器将不同url分派给不同的处理器。
+<p>   数据库的设计请见scheme.sql这个文件，主要分为用户表，图片表、头像表和session表。
 </p>
 <p>
-   这点借鉴了多数框架的思路。
+   里面创建了数据库yagra以及用户yagra并为yagra授予必要的权限。
 </p></div>
 </div>
 </div>
@@ -424,7 +422,7 @@ service apache2 restart
 
 <div id="postamble">
 <hr/><p class="author">Author: <a href="http://everet.org/about-me/">Hua Liang [Stupid ET]</a> </p>
-<p class="date">Last Updated: 2013-03-14 17:16 Thursday</p>
+<p class="date">Last Updated: 2013-03-14 19:22 Thursday</p>
 </div>
 </body>
 </html>

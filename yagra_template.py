@@ -54,7 +54,7 @@ class Template(object):
                              p("如果您还没有Yagra账号，那就赶紧注册一个吧！",
                                strong(a(k(href="/accounts/signup"), "点击注册"))),
                              h3("头像访问API"),
-                             p("你只需要在gravatar注册一个账号，就可以通过邮箱md5访问你的头像"),
+                             p("你只需要在yagra注册一个账号，所有站点就都可以通过邮箱md5访问你的头像"),
                              code('avatar_url = '
                                   '"http://yagra.everet.org/avatar/" '
                                   '+ hashlib.md5(email.lower())'),
@@ -62,7 +62,9 @@ class Template(object):
                              p("除此之外，您还将拥有一个个人主页哦！地址为"),
                              code("http://yagra.everet.org/username"),
                              p(),
-                             p("如我们", a(k(href="/rose"), "rose的个人主页")),
+                             p("如我们 ", a(k(href="/rose"), "rose的个人主页")),
+                             h3("Yagra文档"),
+                             p(a(k(href="/doc/readme.html"), "yagra的说明文档")),
                              ))
         html_string = Template.basic_frame(body_html,
                                            button_name=button_name,

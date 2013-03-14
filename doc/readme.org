@@ -126,6 +126,10 @@
 
   yagra的运行方式为CGI。
 
+** url处理
+   yagra的对于url处理的策略是url rewrite到一个处理文件main.py，这样可以保证url的美观。而且可以通过分配器将不同url通过正则表达式分派给不同的请求处理器。这样的代码结构会更加易于理解和维护。
+
+
 ** html生成
    因为不能第三方库，也就不能使用模板引擎，如果直接通过字符串拼接生成html，这样是十分的低效。
 
@@ -138,7 +142,7 @@
                               p("如果您还没有Yagra账号，那就赶紧注册一个吧！",
                                	strong(a(k(href="/accounts/signup"), "点击注册"))),
                               h3("头像访问API"),
-                              p("你只需要在gravatar注册一个账号，就可以通过邮箱md5访问你的头像"),
+                              p("你只需要在yagra注册一个账号，就可以通过邮箱md5访问你的头像"),
                               code('avatar_url = '
                                    '"http://yagra.everet.org/avatar/" '
                                    '+ hashlib.md5(email.lower())'),
@@ -186,14 +190,9 @@
    #+END_SRC
 
 ** 选择头像
-   为了防止csrf，用户切换头像都需要csrf_token。
+   为了防止csrf，用户切换头像的请求都需要csrf_token。
 
 ** 数据库设计
    数据库的设计请见scheme.sql这个文件，主要分为用户表，图片表、头像表和session表。
 
    里面创建了数据库yagra以及用户yagra并为yagra授予必要的权限。
-
-** yagra整体
-   yagra的整体策略是url rewrite到一个处理文件main.py，这样可以保证url的美观。而且可以通过分配器将不同url分派给不同的处理器。
-
-   这点借鉴了多数框架的思路。
